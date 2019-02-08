@@ -1,0 +1,10 @@
+{
+  "168b1792074": {
+    "path": "..\\resource\\eui_skins\\StartUI.ts",
+    "class": "StartUI",
+    "parentPath": ""
+  },
+  "global": {
+    "globalAutoLayerMarkEnable": true
+  }
+}
