@@ -55,9 +55,15 @@
 				</e:Skin>
 			</e:skinName>
 		</e:Button>
-		<e:Group id="op1" width="154" height="154" x="116" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0"/>
-		<e:Group id="op2" width="154" height="154" x="274" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0"/>
-		<e:Group id="op3" width="154" height="154" x="428" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0"/>
+		<e:Group id="op1" width="154" height="154" x="116" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0">
+			<e:Image id="bg1" source="border_png" fillMode="scale" left="0" right="0" top="0" bottom="0"/>
+		</e:Group>
+		<e:Group id="op2" width="154" height="154" x="274" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0">
+			<e:Image id="bg2" source="border_png" left="0" top="0" right="0" bottom="0"/>
+		</e:Group>
+		<e:Group id="op3" width="154" height="154" x="428" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0">
+			<e:Image id="bg3" source="border_png" left="0" top="0" right="0" bottom="0"/>
+		</e:Group>
 		<e:layout>
 			<e:BasicLayout/>
 		</e:layout>

@@ -236,8 +236,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			this.curblockview.setState(myClear.Block_state.INIT);
 			//this.curblockview.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onBlockTouchBegin1, this);
 
-			this.curblockview.x = 0;
-			this.curblockview.y = 0;
+
 		}
 
 

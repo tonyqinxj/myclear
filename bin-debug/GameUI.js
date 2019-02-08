@@ -165,8 +165,6 @@ var GameUI = (function (_super) {
             this.curdata.op.addChild(this.curblockview);
             this.curblockview.setState(myClear.Block_state.INIT);
             //this.curblockview.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onBlockTouchBegin1, this);
-            this.curblockview.x = 0;
-            this.curblockview.y = 0;
         }
         this.touchEnabled = false;
         this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);

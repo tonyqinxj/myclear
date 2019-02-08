@@ -16,7 +16,7 @@ var BlockView = (function (_super) {
         _this.gz_width = gz_width;
         _this.fk_width = fk_width;
         _this.blockInfo = blockInfo;
-        _this.block_scale = 0.25;
+        _this.block_scale = 0.35;
         _this.state = null;
         return _this;
         //this.op.addChild(this);
@@ -46,11 +46,10 @@ var BlockView = (function (_super) {
             }
         }
         // 计算blockview的size
-        this.x = 0;
-        this.y = 0;
-        this.width = rows * this.gz_width;
-        this.height = cols * this.gz_width;
-        console.log('b:', this.op.x, this.op.y, this.op.width, this.op.height, this.x, this.y, this.width, this.height);
+        // this.x = 0;
+        // this.y = 0;
+        this.width = cols * this.gz_width;
+        this.height = rows * this.gz_width;
         this.setState(myClear.Block_state.INIT);
     };
     BlockView.prototype.setState = function (state) {
@@ -59,6 +58,9 @@ var BlockView = (function (_super) {
             case myClear.Block_state.INIT:
                 this.scaleX = this.block_scale;
                 this.scaleY = this.block_scale;
+                this.x = (this.op.width - this.width * this.scaleX) / 2;
+                this.y = (this.op.height - this.height * this.scaleY) / 2;
+                console.log('b:', this.op.x, this.op.y, this.op.width, this.op.height, this.width, this.height, this.x, this.y, this.width * this.scaleX, this.height * this.scaleY);
                 break;
             case myClear.Block_state.MOVING:
                 this.scaleX = 0.9;

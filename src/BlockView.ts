@@ -8,7 +8,7 @@ class BlockView extends eui.Group {
 
 	private block_scale: number;
 
-	private state:number;
+	private state: number;
 
 	public constructor(op: eui.Group, gz_width: number, fk_width: number, blockInfo: any) {
 		super();
@@ -17,7 +17,7 @@ class BlockView extends eui.Group {
 		this.fk_width = fk_width;
 
 		this.blockInfo = blockInfo;
-		this.block_scale = 0.25;
+		this.block_scale = 0.35;
 		this.state = null;
 
 		//this.op.addChild(this);
@@ -58,11 +58,12 @@ class BlockView extends eui.Group {
 
 
 		// 计算blockview的size
-		this.x = 0;
-		this.y = 0;
-		this.width = rows * this.gz_width;
-		this.height = cols * this.gz_width;
-		console.log('b:', this.op.x, this.op.y, this.op.width, this.op.height, this.x, this.y, this.width, this.height);
+		// this.x = 0;
+		// this.y = 0;
+		this.width = cols * this.gz_width;
+		this.height = rows * this.gz_width;
+
+		
 
 		this.setState(myClear.Block_state.INIT);
 	}
@@ -73,6 +74,13 @@ class BlockView extends eui.Group {
 			case myClear.Block_state.INIT:
 				this.scaleX = this.block_scale;
 				this.scaleY = this.block_scale;
+
+				this.x = (this.op.width - this.width * this.scaleX ) / 2;
+				this.y = (this.op.height - this.height * this.scaleY ) / 2;
+				console.log('b:', this.op.x, this.op.y, this.op.width, this.op.height, this.width, this.height, this.x, this.y,
+				 this.width * this.scaleX,
+				 this.height * this.scaleY
+				);
 				break;
 			case myClear.Block_state.MOVING:
 				this.scaleX = 0.9;
@@ -83,11 +91,11 @@ class BlockView extends eui.Group {
 				break;
 		}
 	}
-	public getState():number{
+	public getState(): number {
 		return this.state;
 	}
 
-	public getBlockInfo():any{
+	public getBlockInfo(): any {
 		return this.blockInfo;
 	}
 }
