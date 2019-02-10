@@ -9,6 +9,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private op1: eui.Group;
 	private op2: eui.Group;
 	private op3: eui.Group;
+	private addscore: eui.Label;
+	private score: eui.Label;
+	private highScore: eui.Label;
 
 	private game: eui.Group;
 
@@ -24,6 +27,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private shadow: Array<any>; // 移动过程中的阴影 [gz]
 	private shadow_pos: any; // {r,c}
 
+	private resOverOK: boolean;
+
 
 	public constructor(main: Main) {
 		super();
@@ -33,6 +38,12 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.shadow_pos = null;
 		this.curdata = null;
 		this.curblockview = null;
+
+		this.resOverOK = false;
+
+		this.gameData = new myClear.GameData();
+
+
 	}
 
 	protected partAdded(partName: string, instance: any): void {
@@ -43,10 +54,21 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	protected childrenCreated(): void {
 		super.childrenCreated();
 
+
+
+		this.init();
+
+
+	}
+
+
+
+	private init(): void {
+
 		this.gz_width = this.game.width / 8;
 		this.fk_width = this.gz_width - 2;
 
-		this.gameData = new myClear.GameData(this.gz_width, this.fk_width);
+		this.gameData.init(this.gz_width, this.fk_width);
 
 		this.opdata.push({ op: this.op1 });
 		this.opdata.push({ op: this.op2 });
@@ -67,8 +89,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
 
 
+		this.addscore.visible = false;
+		this.score.text = '0';
+		this.highScore.text = '' + this.main.highScore;
 	}
-
 	private initBlock(): void {
 		// 对block的数据进行初始化
 		this.gameData.initBlock();
@@ -83,15 +107,14 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			// this.opdata[i].blockView.touchEnable = false;
 		}
 
+		this.checkOver();
+
 	}
 
 
 
 
 	protected onButtonOpClick(e: egret.TouchEvent, id: number): void {
-
-
-
 		for (let i = 0; i < 3; i++) {
 			let opdata = this.opdata[i];
 
@@ -168,8 +191,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 							let fk = ResTools.createBitmapByName(color);
 							let gz_info = this.gameData.getGridInfoByPos(i + r, j + c);
 
-							fk.anchorOffsetX = this.fk_width/2;
-							fk.anchorOffsetY = this.fk_width/2;
+							fk.anchorOffsetX = this.fk_width / 2;
+							fk.anchorOffsetY = this.fk_width / 2;
 							fk.x = gz_info.x;
 							fk.y = gz_info.y;
 
@@ -230,6 +253,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 			this.checkClear();
 
+			this.checkOver();
+
 		} else {
 			// block还原
 			this.curdata.op.addChild(this.curblockview);
@@ -251,6 +276,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.removeEventListener(egret.TouchEvent.TOUCH_END, this.onTouchEnd, this);
 		this.removeEventListener(egret.TouchEvent.TOUCH_CANCEL, this.onTouchCancel, this);
 		this.removeEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.onTouchReleaeOutside, this);
+
+
 	}
 
 	private onTouchCancel(e: egret.TouchEvent): void {
@@ -326,8 +353,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 
 					this.gameData.attachGz(i + x, j + y, gz);
-					gz.anchorOffsetX = this.fk_width/2;
-					gz.anchorOffsetY = this.fk_width/2;
+					gz.anchorOffsetX = this.fk_width / 2;
+					gz.anchorOffsetY = this.fk_width / 2;
 					gz.x = gz_info.x;
 					gz.y = gz_info.y;
 
@@ -339,6 +366,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 			}
 		}
+
+		this.score.text = '' + this.gameData.gameScore;
 	}
 
 	private checkClear() {
@@ -351,6 +380,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 				//this.game.removeChild(clearData.gzs[i]);
 				this.clearGz(i, clearData.gzs[i]);
 			}
+
+			this.showScore(clearData.addscore, clearData.gzs[0].x, clearData.gzs[0].y);
+
 		}
 
 		// 如果没有可用的组合，则再次生产
@@ -362,11 +394,83 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private clearGz(wait_time: number, gz: egret.Bitmap): void {
 		let tw = egret.Tween.get(gz);
 		tw.to({ scaleX: 1.3, scaleY: 1.3 }, 100)
-		.wait(100)
-		.to({scaleX: 0.5, scaleY: 0.5},300)
-		.call(() => {
-			this.game.removeChild(gz);
-		})
+			.wait(100)
+			.to({ scaleX: 0.5, scaleY: 0.5 }, 300)
+			.call(() => {
+				this.game.removeChild(gz);
+			})
 	}
 
+	private showScore(addscore: number, x: number, y: number): void {
+
+		this.addscore.textColor = 0xFFFF00;
+		this.addscore.bold = true;
+		this.addscore.strokeColor = 0x0000FF;
+		this.addscore.x = x - this.gz_width / 2;
+		this.addscore.y = y - this.gz_width / 2;
+		this.addscore.scaleX = 1.0;
+		this.addscore.scaleY = 1.0;
+		this.addscore.visible = true;
+		this.addscore.text = '+' + addscore;
+
+		this.game.addChild(this.addscore);
+		console.log('show:', this.addscore.x, this.addscore.y);
+		let tw = egret.Tween.get(this.addscore);
+		tw.wait(500)
+			.to({ scaleX: 1.1, scaleY: 1.1 }, 100)
+			.wait(100)
+
+			.call(() => {
+				this.addscore.visible = false;
+				this.score.text = '' + this.gameData.gameScore;
+			})
+
+	}
+
+	private checkOver() {
+
+		let overdata = this.gameData.checkOver();
+		if (overdata.num > 0) {
+			// 灰度不可用的
+		}
+
+		if (overdata.over) {
+			// 结束逻辑执行
+			if (this.main.highScore < this.gameData.gameScore) {
+				this.main.highScore = this.gameData.gameScore;
+			}
+			this.highScore.text = '' + this.main.highScore;
+			this.goOver().catch(e => {
+				console.log(e);
+			})
+		}
+	}
+
+
+	private async goOver() {
+		await this.loadOverResource()
+		this.main.setPage("over");
+		// const result = await RES.getResAsync("description_json")
+		// this.startAnimation(result);
+		// await platform.login();
+		// const userInfo = await platform.getUserInfo();
+		// console.log(userInfo);
+
+	}
+
+	private async loadOverResource() {
+		try {
+			if (this.resOverOK) return;
+
+			this.resOverOK = true;
+
+			const loadingView = new LoadingUI();
+			this.stage.addChild(loadingView);
+			await RES.loadGroup("over", 0, loadingView);
+			this.stage.removeChild(loadingView);
+		}
+		catch (e) {
+			console.error(e);
+		}
+	}
 }

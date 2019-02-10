@@ -78,6 +78,8 @@ var Main = (function (_super) {
     }
     Main.prototype.createChildren = function () {
         _super.prototype.createChildren.call(this);
+        this.curPage = null;
+        this.highScore = 0;
         egret.lifecycle.addLifecycleListener(function (context) {
             // custom lifecycle plugin
         });
@@ -92,18 +94,18 @@ var Main = (function (_super) {
         var assetAdapter = new AssetAdapter();
         egret.registerImplementation("eui.IAssetAdapter", assetAdapter);
         egret.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
-        this.runGame().catch(function (e) {
+        this.goStart().catch(function (e) {
             console.log(e);
         });
     };
-    Main.prototype.runGame = function () {
+    Main.prototype.goStart = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.loadResource()];
                     case 1:
                         _a.sent();
-                        this.createGameScene();
+                        this.setPage("start");
                         return [2 /*return*/];
                 }
             });
@@ -150,16 +152,26 @@ var Main = (function (_super) {
         });
     };
     //private textfield: egret.TextField;
-    Main.prototype.createGameScene = function () {
-        var startUI = new StartUI(this);
-        this.addChild(startUI);
-        this.startUI = startUI;
+    Main.prototype.clearCurScene = function () {
+        if (this.curPage)
+            this.removeChild(this.curPage);
     };
-    Main.prototype.onStart = function () {
-        console.log('onStart call...');
-        this.removeChild(this.startUI);
-        var gameUI = new GameUI(this);
-        this.addChild(gameUI);
+    Main.prototype.setPage = function (page) {
+        this.clearCurScene();
+        switch (page) {
+            case "start":
+                this.curPage = new StartUI(this);
+                break;
+            case "game":
+                this.curPage = new GameUI(this);
+                break;
+            case "over":
+                this.curPage = new OverUI(this);
+                break;
+            default:
+                return;
+        }
+        this.addChild(this.curPage);
     };
     // /**
     //  * 创建场景界面

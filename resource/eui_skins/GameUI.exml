@@ -37,7 +37,9 @@
 			<e:BasicLayout/>
 		</e:layout>
 	</e:Group>
-	<e:Group id="game" anchorOffsetX="0" anchorOffsetY="0" top="353" horizontalCenter="0" height="616" width="616"/>
+	<e:Group id="game" anchorOffsetX="0" anchorOffsetY="0" top="353" horizontalCenter="0" height="616" width="616">
+		<e:Label id="addscore" text="30" x="82" y="244" size="64"/>
+	</e:Group>
 	<e:Group id="op" width="694" height="182" anchorOffsetX="0" anchorOffsetY="0" horizontalCenter="0" top="1052">
 		<e:Button id="bomb" label="" anchorOffsetY="0" height="144" width="87" top="19" left="19">
 			<e:skinName>

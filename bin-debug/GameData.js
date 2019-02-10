@@ -101,18 +101,20 @@ var myClear;
     };
     // 纯数据对象
     var GameData = (function () {
-        function GameData(gz_width, fk_width) {
+        function GameData() {
+        }
+        GameData.prototype.init = function (gz_width, fk_width) {
             this.gz_width = gz_width;
             this.fk_width = fk_width;
+        };
+        // game区域方块的数据初始化，包括相对位置 x,y , 方块类型 colorId， 
+        GameData.prototype.initGrid = function () {
             // 初始化分数
             this.gameScore = 0;
             // 初始化网格
             this.gameGrid = new Array();
             // 初始化一批block（每一批3个）
             this.blocks = new Array();
-        }
-        // game区域方块的数据初始化，包括相对位置 x,y , 方块类型 colorId， 
-        GameData.prototype.initGrid = function () {
             var x = 0;
             var y = 0;
             for (var i = 0; i < 8; i++) {
@@ -247,6 +249,8 @@ var myClear;
         GameData.prototype.doClear = function () {
             var clears = 0;
             var gzs = [];
+            var rows = [];
+            var cols = [];
             for (var i = 0; i < 8; i++) {
                 var sums = 0;
                 for (var j = 0; j < 8; j++) {
@@ -254,13 +258,7 @@ var myClear;
                 }
                 if (sums >= 8) {
                     clears++;
-                    for (var j = 0; j < 8; j++) {
-                        if (this.gameGrid[i][j].gz != null) {
-                            gzs.push(this.gameGrid[i][j].gz);
-                            this.gameGrid[i][j].gz = null;
-                            this.gameGrid[i][j].num = 0;
-                        }
-                    }
+                    rows.push(i);
                 }
                 ;
             }
@@ -271,12 +269,24 @@ var myClear;
                 }
                 if (sums >= 8) {
                     clears++;
-                    for (var j = 0; j < 8; j++) {
-                        if (this.gameGrid[j][i].gz != null) {
-                            gzs.push(this.gameGrid[j][i].gz);
-                            this.gameGrid[j][i].gz = null;
-                            this.gameGrid[j][i].num = 0;
-                        }
+                    cols.push(i);
+                }
+            }
+            for (var i = 0; i < rows.length; i++) {
+                for (var j = 0; j < 8; j++) {
+                    if (this.gameGrid[rows[i]][j].gz != null) {
+                        gzs.push(this.gameGrid[rows[i]][j].gz);
+                        this.gameGrid[rows[i]][j].gz = null;
+                        this.gameGrid[rows[i]][j].num = 0;
+                    }
+                }
+            }
+            for (var i = 0; i < cols.length; i++) {
+                for (var j = 0; j < 8; j++) {
+                    if (this.gameGrid[j][cols[i]].gz != null) {
+                        gzs.push(this.gameGrid[j][cols[i]].gz);
+                        this.gameGrid[j][cols[i]].gz = null;
+                        this.gameGrid[j][cols[i]].num = 0;
                     }
                 }
             }
@@ -309,6 +319,28 @@ var myClear;
                     return true;
             }
             return false;
+        };
+        // 判断是否结束, return {over：boolean， cantnum:number}
+        GameData.prototype.checkOver = function () {
+            var cantnum = 0;
+            var neetPut = 0;
+            for (var i = 0; i < 3; i++) {
+                var block = this.blocks[i];
+                if (block.isPut)
+                    continue;
+                neetPut++;
+                if (false == this.blockCanPut(i)) {
+                    cantnum++;
+                }
+            }
+            var over = false;
+            if (cantnum == neetPut) {
+                over = true;
+            }
+            return {
+                over: over,
+                cantnum: cantnum
+            };
         };
         return GameData;
     }());

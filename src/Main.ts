@@ -28,10 +28,17 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 class Main extends eui.UILayer {
-    private startUI:eui.Component;
+    private curPage: eui.Component;
+
+    public highScore:number;
 
     protected createChildren(): void {
         super.createChildren();
+
+        this.curPage = null;
+
+        this.highScore = 0;
+
 
         egret.lifecycle.addLifecycleListener((context) => {
             // custom lifecycle plugin
@@ -52,14 +59,14 @@ class Main extends eui.UILayer {
         egret.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
 
 
-        this.runGame().catch(e => {
+        this.goStart().catch(e => {
             console.log(e);
         })
     }
 
-    private async runGame() {
+    private async goStart() {
         await this.loadResource()
-        this.createGameScene();
+        this.setPage("start");
         // const result = await RES.getResAsync("description_json")
         // this.startAnimation(result);
         // await platform.login();
@@ -96,19 +103,39 @@ class Main extends eui.UILayer {
 
     //private textfield: egret.TextField;
 
-    protected createGameScene():void {
-        let startUI = new StartUI(this);
-        this.addChild(startUI);
+    private clearCurScene() {
+        if (this.curPage) this.removeChild(this.curPage);
 
-        this.startUI = startUI;
+
     }
 
-    public onStart(){
-        console.log('onStart call...');
-        this.removeChild(this.startUI);
-        let gameUI = new GameUI(this);
-        this.addChild(gameUI);
+
+    public setPage(page: string) {
+        this.clearCurScene();
+        switch (page) {
+            case "start":
+                this.curPage = new StartUI(this);
+                break;
+
+            case "game":
+                this.curPage = new GameUI(this);
+
+                break;
+
+            case "over":
+                this.curPage = new OverUI(this);
+
+                break;
+
+            default:
+                return;
+        }
+
+        this.addChild(this.curPage);
+
     }
+
+
     // /**
     //  * 创建场景界面
     //  * Create scene interface

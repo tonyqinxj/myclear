@@ -108,16 +108,27 @@ namespace myClear {
         private fk_width: number;
 
 
+
         public gameScore: number; // 游戏分数
         public gameGrid: Array<Array<any>>; // 游戏格子管理 {colorId, num, x, y, gz}
         public blocks: Array<any>; // 可选择的组件 {id, colorId, blockId, canPut, isPut}
 
 
-        public constructor(gz_width, fk_width) {
+        public constructor() {
+
+        }
+
+
+        public init(gz_width, fk_width){
             this.gz_width = gz_width;
             this.fk_width = fk_width;
 
-            // 初始化分数
+
+        }
+
+        // game区域方块的数据初始化，包括相对位置 x,y , 方块类型 colorId， 
+        public initGrid() {
+             // 初始化分数
             this.gameScore = 0;
 
             // 初始化网格
@@ -125,11 +136,6 @@ namespace myClear {
 
             // 初始化一批block（每一批3个）
             this.blocks = new Array<any>();
-
-        }
-
-        // game区域方块的数据初始化，包括相对位置 x,y , 方块类型 colorId， 
-        public initGrid() {
 
             let x = 0;
             let y = 0;
@@ -294,6 +300,9 @@ namespace myClear {
             let clears = 0;
             let gzs = [];
 
+            let rows = [];
+            let cols = [];
+
             for (let i = 0; i < 8; i++) {
                 let sums = 0;
                 for (let j = 0; j < 8; j++) {
@@ -301,16 +310,8 @@ namespace myClear {
                 }
 
                 if (sums >= 8) {
-
                     clears++;
-                    for (let j = 0; j < 8; j++) {
-                        if (this.gameGrid[i][j].gz != null) {
-                            gzs.push(this.gameGrid[i][j].gz);
-                            this.gameGrid[i][j].gz = null;
-                            this.gameGrid[i][j].num = 0;
-                        }
-                    }
-
+                    rows.push(i);
                 };
             }
 
@@ -319,19 +320,34 @@ namespace myClear {
                 for (let j = 0; j < 8; j++) {
                     sums += this.gameGrid[j][i].num;
                 }
-
                 if (sums >= 8) {
                     clears++;
-                    for (let j = 0; j < 8; j++) {
-                        if (this.gameGrid[j][i].gz != null) {
-                            gzs.push(this.gameGrid[j][i].gz);
-                            this.gameGrid[j][i].gz = null;
-                            this.gameGrid[j][i].num = 0;
-                        }
-                    }
+                    cols.push(i);
+
                 }
             }
 
+            for (let i = 0; i < rows.length; i++) {
+                for (let j = 0; j < 8; j++) {
+                    if (this.gameGrid[rows[i]][j].gz != null) {
+                        gzs.push(this.gameGrid[rows[i]][j].gz);
+                        this.gameGrid[rows[i]][j].gz = null;
+                        this.gameGrid[rows[i]][j].num = 0;
+                    }
+                }
+
+            }
+
+            for (let i = 0; i < cols.length; i++) {
+                for (let j = 0; j < 8; j++) {
+                    if (this.gameGrid[j][cols[i]].gz != null) {
+                        gzs.push(this.gameGrid[j][cols[i]].gz);
+                        this.gameGrid[j][cols[i]].gz = null;
+                        this.gameGrid[j][cols[i]].num = 0;
+                    }
+                }
+
+            }
 
             let addscore = 0;
 
@@ -369,6 +385,33 @@ namespace myClear {
             }
 
             return false;
+        }
+
+        // 判断是否结束, return {over：boolean， cantnum:number}
+        public checkOver(): any {
+
+            let cantnum = 0;
+            let neetPut = 0;
+            for (let i = 0; i < 3; i++) {
+                let block = this.blocks[i];
+                if (block.isPut) continue;
+
+                neetPut++;
+                if (false == this.blockCanPut(i)) {
+                    cantnum++;
+                }
+            }
+
+            let over = false;
+            if (cantnum == neetPut) {
+                over = true;
+
+            }
+
+            return {
+                over: over,
+                cantnum: cantnum
+            }
         }
     }
 }

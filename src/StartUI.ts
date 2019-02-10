@@ -1,10 +1,16 @@
 class StartUI extends eui.Component implements eui.UIComponent {
 	private main: Main;
 	public start: eui.Button;
+
+	private resOK: boolean;
+
+
 	public constructor(main: Main) {
 		super();
 
 		this.main = main;
+		this.resOK = false;
+
 	}
 
 	protected partAdded(partName: string, instance: any): void {
@@ -16,25 +22,38 @@ class StartUI extends eui.Component implements eui.UIComponent {
 		super.childrenCreated();
 
 
-		this.start.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonStartClick, this);
+		this.init();
 
+
+
+	}
+
+
+
+	private init(): void {
+		this.start.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonStartClick, this);
 	}
 
 
 	private onButtonStartClick(e: egret.TouchEvent) {
-        this.startGame().catch(e => {
-            console.log(e);
-        })
+		this.startGame().catch(e => {
+			console.log(e);
+		})
 
 	}
 
 	private async startGame() {
-		await this.loadResource()
-		this.main.onStart();
+		await this.loadGameResource()
+		this.main.setPage("game");
 	}
 
-	private async loadResource() {
+	private async loadGameResource() {
 		try {
+
+			if (this.resOK) return;
+
+			this.resOK = true;
+
 			const loadingView = new LoadingUI();
 			this.stage.addChild(loadingView);
 			await RES.loadGroup("game", 0, loadingView);

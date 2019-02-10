@@ -48,6 +48,7 @@ var StartUI = (function (_super) {
     function StartUI(main) {
         var _this = _super.call(this) || this;
         _this.main = main;
+        _this.resOK = false;
         return _this;
     }
     StartUI.prototype.partAdded = function (partName, instance) {
@@ -55,6 +56,9 @@ var StartUI = (function (_super) {
     };
     StartUI.prototype.childrenCreated = function () {
         _super.prototype.childrenCreated.call(this);
+        this.init();
+    };
+    StartUI.prototype.init = function () {
         this.start.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonStartClick, this);
     };
     StartUI.prototype.onButtonStartClick = function (e) {
@@ -66,22 +70,25 @@ var StartUI = (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.loadResource()];
+                    case 0: return [4 /*yield*/, this.loadGameResource()];
                     case 1:
                         _a.sent();
-                        this.main.onStart();
+                        this.main.setPage("game");
                         return [2 /*return*/];
                 }
             });
         });
     };
-    StartUI.prototype.loadResource = function () {
+    StartUI.prototype.loadGameResource = function () {
         return __awaiter(this, void 0, void 0, function () {
             var loadingView, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
+                        if (this.resOK)
+                            return [2 /*return*/];
+                        this.resOK = true;
                         loadingView = new LoadingUI();
                         this.stage.addChild(loadingView);
                         return [4 /*yield*/, RES.loadGroup("game", 0, loadingView)];
