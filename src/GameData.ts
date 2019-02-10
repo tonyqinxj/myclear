@@ -359,7 +359,8 @@ namespace myClear {
 
             return {
                 gzs: gzs,
-                addscore: addscore
+                addscore: addscore,
+                clears:clears,
             }
         }
 

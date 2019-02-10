@@ -297,7 +297,8 @@ var myClear;
             this.gameScore += addscore;
             return {
                 gzs: gzs,
-                addscore: addscore
+                addscore: addscore,
+                clears: clears,
             };
         };
         // 计算消除需要添加的分数

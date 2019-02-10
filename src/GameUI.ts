@@ -29,6 +29,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	private resOverOK: boolean;
 
+	private lastcleartime: number; // 上次消除时间
+	private cleartimes: number; // 连击次数
+
 
 	public constructor(main: Main) {
 		super();
@@ -64,6 +67,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 
 	private init(): void {
+		this.lastcleartime = 0;
+		this.cleartimes = 0;
 
 		this.gz_width = this.game.width / 8;
 		this.fk_width = this.gz_width - 2;
@@ -92,6 +97,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.addscore.visible = false;
 		this.score.text = '0';
 		this.highScore.text = '' + this.main.highScore;
+
+		let sound: egret.Sound = RES.getRes('8_mp3');
+		sound.play();
 	}
 	private initBlock(): void {
 		// 对block的数据进行初始化
@@ -146,6 +154,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.curblockview.x = e.stageX - this.x;
 		this.curblockview.y = e.stageY - this.y - 300;
 		console.log('onBlockTouchBegin:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
+
+		let sound: egret.Sound = RES.getRes('putup_mp3');
+		sound.play(0, 1);
 	}
 
 	private onTouchMove(e: egret.TouchEvent): void {
@@ -312,6 +323,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	protected onButtonRankClick(e: egret.TouchEvent): void {
 		console.log('onButtonRankClick');
+		let sound: egret.Sound = RES.getRes("1_mp3");
+		sound.play(0, 1);
+
+
 	}
 
 	protected onButtonMusicClick(e: egret.TouchEvent): void {
@@ -368,6 +383,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		}
 
 		this.score.text = '' + this.gameData.gameScore;
+
+		let sound: egret.Sound = RES.getRes('putdown_mp3');
+		sound.play(0, 1);
 	}
 
 	private checkClear() {
@@ -383,6 +401,19 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 			this.showScore(clearData.addscore, clearData.gzs[0].x, clearData.gzs[0].y);
 
+
+			let tnow = new Date().getTime();
+			if (tnow - this.lastcleartime < 5000) {
+				this.cleartimes++;
+			} else {
+				this.cleartimes = 2;
+			}
+
+			this.lastcleartime = tnow;
+			let sound_res_name = this.cleartimes + '_mp3';
+			console.log('sound', this.cleartimes, sound_res_name);
+			let sound: egret.Sound = RES.getRes(sound_res_name);
+			sound.play(0, 1);
 		}
 
 		// 如果没有可用的组合，则再次生产
@@ -392,6 +423,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 
 	private clearGz(wait_time: number, gz: egret.Bitmap): void {
+
 		let tw = egret.Tween.get(gz);
 		tw.to({ scaleX: 1.3, scaleY: 1.3 }, 100)
 			.wait(100)

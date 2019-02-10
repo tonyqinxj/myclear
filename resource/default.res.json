@@ -9,7 +9,7 @@
 			"name": "start"
 		},
 		{
-			"keys": "game_v_open_png,game_v_close_png,game_tuijian_open_png,game_tuijian_close_png,game_score_png,game_replay_png,game_high_score_png,game_gz_mei_png,game_gz_hong_png,game_gz_hei_png,game_gz_fang_png,game_friend_rank_png,game_change_png,game_bomb_png,game_bg_png,border_png",
+			"keys": "game_v_open_png,game_v_close_png,game_tuijian_open_png,game_tuijian_close_png,game_score_png,game_replay_png,game_high_score_png,game_gz_mei_png,game_gz_hong_png,game_gz_hei_png,game_gz_fang_png,game_friend_rank_png,game_change_png,game_bomb_png,game_bg_png,border_png,0_mp3,1_mp3,10_mp3,2_mp3,3_mp3,4_mp3,5_mp3,6_mp3,7_mp3,8_mp3,9_mp3,bgstart_mp3,disappear_mp3,putdown_mp3,putup_mp3,shiban_mp3",
 			"name": "game"
 		},
 		{
@@ -252,6 +252,86 @@
 			"url": "assets/over/over_restart.png",
 			"type": "image",
 			"name": "over_restart_png"
+		},
+		{
+			"url": "sounds/0.mp3",
+			"type": "sound",
+			"name": "0_mp3"
+		},
+		{
+			"url": "sounds/1.mp3",
+			"type": "sound",
+			"name": "1_mp3"
+		},
+		{
+			"url": "sounds/10.mp3",
+			"type": "sound",
+			"name": "10_mp3"
+		},
+		{
+			"url": "sounds/2.mp3",
+			"type": "sound",
+			"name": "2_mp3"
+		},
+		{
+			"url": "sounds/3.mp3",
+			"type": "sound",
+			"name": "3_mp3"
+		},
+		{
+			"url": "sounds/4.mp3",
+			"type": "sound",
+			"name": "4_mp3"
+		},
+		{
+			"url": "sounds/5.mp3",
+			"type": "sound",
+			"name": "5_mp3"
+		},
+		{
+			"url": "sounds/6.mp3",
+			"type": "sound",
+			"name": "6_mp3"
+		},
+		{
+			"url": "sounds/7.mp3",
+			"type": "sound",
+			"name": "7_mp3"
+		},
+		{
+			"url": "sounds/8.mp3",
+			"type": "sound",
+			"name": "8_mp3"
+		},
+		{
+			"url": "sounds/9.mp3",
+			"type": "sound",
+			"name": "9_mp3"
+		},
+		{
+			"url": "sounds/bgstart.mp3",
+			"type": "sound",
+			"name": "bgstart_mp3"
+		},
+		{
+			"url": "sounds/disappear.mp3",
+			"type": "sound",
+			"name": "disappear_mp3"
+		},
+		{
+			"url": "sounds/putdown.mp3",
+			"type": "sound",
+			"name": "putdown_mp3"
+		},
+		{
+			"url": "sounds/putup.mp3",
+			"type": "sound",
+			"name": "putup_mp3"
+		},
+		{
+			"url": "sounds/shiban.mp3",
+			"type": "sound",
+			"name": "shiban_mp3"
 		}
 	]
 }

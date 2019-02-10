@@ -84,6 +84,8 @@ var GameUI = (function (_super) {
         this.addscore.visible = false;
         this.score.text = '0';
         this.highScore.text = '' + this.main.highScore;
+        var sound = RES.getRes('8_mp3');
+        sound.play();
     };
     GameUI.prototype.initBlock = function () {
         // 对block的数据进行初始化
@@ -123,6 +125,8 @@ var GameUI = (function (_super) {
         this.curblockview.x = e.stageX - this.x;
         this.curblockview.y = e.stageY - this.y - 300;
         console.log('onBlockTouchBegin:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
+        var sound = RES.getRes('putup_mp3');
+        sound.play(0, 1);
     };
     GameUI.prototype.onTouchMove = function (e) {
         this.curblockview.x = e.stageX - this.x;
@@ -246,6 +250,8 @@ var GameUI = (function (_super) {
     };
     GameUI.prototype.onButtonRankClick = function (e) {
         console.log('onButtonRankClick');
+        var sound = RES.getRes("1_mp3");
+        sound.play(0, 1);
     };
     GameUI.prototype.onButtonMusicClick = function (e) {
         console.log('onButtonMusicClick');
@@ -282,6 +288,8 @@ var GameUI = (function (_super) {
             }
         }
         this.score.text = '' + this.gameData.gameScore;
+        var sound = RES.getRes('putdown_mp3');
+        sound.play(0, 1);
     };
     GameUI.prototype.checkClear = function () {
         // 清楚数据中的gz
@@ -293,6 +301,9 @@ var GameUI = (function (_super) {
                 this.clearGz(i, clearData.gzs[i]);
             }
             this.showScore(clearData.addscore, clearData.gzs[0].x, clearData.gzs[0].y);
+            var sound_res_name = (clearData.clears + 1) + '_mp3';
+            var sound = RES.getRes(sound_res_name);
+            sound.play(0, 1);
         }
         // 如果没有可用的组合，则再次生产
         if (this.gameData.haveBlockToUse() == false) {
