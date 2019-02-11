@@ -83,8 +83,8 @@ class BlockView extends eui.Group {
 				);
 				break;
 			case myClear.Block_state.MOVING:
-				this.scaleX = 0.9;
-				this.scaleY = 0.9;
+				this.scaleX = 1.0;
+				this.scaleY = 1.0;
 				break;
 			case myClear.Block_state.END:
 				this.removeChildren();

@@ -2,7 +2,7 @@
 <e:Skin class="GameUISkin" width="750" height="1624" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing" >
 	<w:Config id="168b27b2ef9" ></w:Config>
 	<e:Image id="bg" width="750" height="1624" x="-4" y="0" source="game_bg_png"/>
-	<e:Group id="top" width="696.97" height="115.15" anchorOffsetX="0" anchorOffsetY="0" left="30" top="167">
+	<e:Group id="topGroup" width="696.97" height="115.15" anchorOffsetX="0" anchorOffsetY="0" left="30" top="167">
 		<e:Image id="highImg" width="57" height="49" x="40" y="16" source="game_high_score_png"/>
 		<e:Label id="highScore" text="5555" x="4" y="72" anchorOffsetX="0" width="115" bold="true" verticalAlign="middle" textAlign="center"/>
 		<e:Image id="scoreImg" width="48" height="48" x="167" y="16" source="game_score_png" anchorOffsetY="0" anchorOffsetX="0"/>
@@ -58,13 +58,13 @@
 			</e:skinName>
 		</e:Button>
 		<e:Group id="op1" width="154" height="154" x="116" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0">
-			<e:Image id="bg1" source="border_png" fillMode="scale" left="0" right="0" top="0" bottom="0"/>
+
 		</e:Group>
 		<e:Group id="op2" width="154" height="154" x="274" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0">
-			<e:Image id="bg2" source="border_png" left="0" top="0" right="0" bottom="0"/>
+
 		</e:Group>
-		<e:Group id="op3" width="154" height="154" x="428" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0">
-			<e:Image id="bg3" source="border_png" left="0" top="0" right="0" bottom="0"/>
+		<e:Group id="op3" width="154" height="154" x="432" anchorOffsetY="0" anchorOffsetX="0" verticalCenter="0">
+
 		</e:Group>
 		<e:layout>
 			<e:BasicLayout/>

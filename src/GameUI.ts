@@ -14,6 +14,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private highScore: eui.Label;
 
 	private game: eui.Group;
+	private topGroup: eui.Group;
 
 
 	private gz_width: number;
@@ -31,6 +32,13 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	private lastcleartime: number; // 上次消除时间
 	private cleartimes: number; // 连击次数
+
+
+	// 排行榜代码
+	private rank_bitmap: egret.Bitmap;
+	private rank_isdisplay = false;
+	private rankingListMask: egret.Shape;
+	private rank_pos:any;
 
 
 	public constructor(main: Main) {
@@ -57,7 +65,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	protected childrenCreated(): void {
 		super.childrenCreated();
 
-
+		const platform: any = window.platform;
+		platform.openDataContext.postMessage({
+			command: 'loadRes'
+		});
 
 		this.init();
 
@@ -100,6 +111,14 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		let sound: egret.Sound = RES.getRes('8_mp3');
 		sound.play();
+
+
+		this.rank_pos = {
+			x:this.rank.x,
+			y:this.rank.y
+		};
+
+
 	}
 	private initBlock(): void {
 		// 对block的数据进行初始化
@@ -127,7 +146,21 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			let opdata = this.opdata[i];
 
 			if (i == id && opdata.blockView.getState() == myClear.Block_state.INIT) {
+
+				this.curdata = null;
+				this.curblockview = null;
+
+				if (opdata.canPut == false) {
+					let sound: egret.Sound = RES.getRes("1_mp3");
+					sound.play(0, 1);
+					break;
+				}
+
 				this.curdata = opdata;
+				let sound: egret.Sound = RES.getRes('putup_mp3');
+				sound.play(0, 1);
+
+
 				this.curblockview = opdata.blockView;
 				opdata.op.removeChild(opdata.blockView);
 				opdata.blockView.setState(myClear.Block_state.MOVING);
@@ -151,16 +184,17 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 
 	private onTouchBegin(e: egret.TouchEvent): void {
-		this.curblockview.x = e.stageX - this.x;
+		if (this.curdata == null) return;
+
 		this.curblockview.y = e.stageY - this.y - 300;
+		this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
 		console.log('onBlockTouchBegin:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
 
-		let sound: egret.Sound = RES.getRes('putup_mp3');
-		sound.play(0, 1);
+
 	}
 
 	private onTouchMove(e: egret.TouchEvent): void {
-		this.curblockview.x = e.stageX - this.x;
+		this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
 		this.curblockview.y = e.stageY - this.y - 300;
 
 		console.log('onTouchMove:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
@@ -323,9 +357,48 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	protected onButtonRankClick(e: egret.TouchEvent): void {
 		console.log('onButtonRankClick');
-		let sound: egret.Sound = RES.getRes("1_mp3");
-		sound.play(0, 1);
+		// let sound: egret.Sound = RES.getRes("1_mp3");
+		// sound.play(0, 1);
+		let platform: any = window.platform;
+		if (this.rank_isdisplay) {
+			this.rank_bitmap.parent && this.rank_bitmap.parent.removeChild(this.rank_bitmap);
+			this.rankingListMask.parent && this.rankingListMask.parent.removeChild(this.rankingListMask);
+			this.rank_isdisplay = false;
+			platform.openDataContext.postMessage({
+				isDisplay: this.rank_isdisplay,
+				text: 'hello',
+				year: (new Date()).getFullYear(),
+				command: 'close'
+			});
 
+			this.topGroup.addChild(this.rank);
+			this.rank.x = this.rank_pos.x;
+			this.rank.y = this.rank_pos.y;
+		} else {
+			//处理遮罩，避免开放数据域事件影响主域。
+			this.rankingListMask = new egret.Shape();
+			this.rankingListMask.graphics.beginFill(0x000000, 1);
+			this.rankingListMask.graphics.drawRect(0, 0, this.width, this.height);
+			this.rankingListMask.graphics.endFill();
+			this.rankingListMask.alpha = 0.5;
+			this.rankingListMask.touchEnabled = true;
+			this.addChild(this.rankingListMask);
+
+			//简单实现，打开这关闭使用一个按钮。
+			this.addChild(this.rank);
+			//主要示例代码开始
+			this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.width, this.height);
+			this.addChild(this.rank_bitmap);
+			//主域向子域发送自定义消息
+			platform.openDataContext.postMessage({
+				isDisplay: this.rank_isdisplay,
+				text: 'hello',
+				year: (new Date()).getFullYear(),
+				command: "open"
+			});
+			//主要示例代码结束            
+			this.rank_isdisplay = true;
+		}
 
 	}
 
@@ -464,6 +537,16 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		let overdata = this.gameData.checkOver();
 		if (overdata.num > 0) {
 			// 灰度不可用的
+			for (let i = 0; i < 3; i++) {
+				let block = this.gameData.blocks[i];
+				if (block.isPut == false) {
+					if (block.canPut) {
+						this.opdata[i].blockView.alpha = 1;
+					} else {
+						this.opdata[i].blockView.alpha = 0.5;
+					}
+				}
+			}
 		}
 
 		if (overdata.over) {
