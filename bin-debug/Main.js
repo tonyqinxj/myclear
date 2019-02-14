@@ -106,6 +106,13 @@ var Main = (function (_super) {
                     case 1:
                         _a.sent();
                         this.setPage("start");
+                        // const result = await RES.getResAsync("description_json")
+                        // this.startAnimation(result);
+                        return [4 /*yield*/, platform.login()];
+                    case 2:
+                        // const result = await RES.getResAsync("description_json")
+                        // this.startAnimation(result);
+                        _a.sent();
                         return [2 /*return*/];
                 }
             });
@@ -120,8 +127,10 @@ var Main = (function (_super) {
                         _a.trys.push([0, 4, , 5]);
                         loadingView = new LoadingUI();
                         this.stage.addChild(loadingView);
-                        return [4 /*yield*/, RES.loadConfig("resource/default.res.json", "resource/")];
+                        //await RES.loadConfig("default.res.json", "https://prizedraw.myxianxiaobao.com/resource");
+                        return [4 /*yield*/, RES.loadConfig("default.res.json", "/resource")];
                     case 1:
+                        //await RES.loadConfig("default.res.json", "https://prizedraw.myxianxiaobao.com/resource");
                         _a.sent();
                         return [4 /*yield*/, this.loadTheme()];
                     case 2:

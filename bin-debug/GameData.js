@@ -141,27 +141,70 @@ var myClear;
         GameData.prototype.getGridInfoByPos = function (x, y) {
             return this.gameGrid[x][y];
         };
-        GameData.prototype.getPos = function (px, py) {
-            // px,py 是相对于gameGroup的坐标
-            for (var i = 0; i < 8; i++) {
-                for (var j = 0; j < 8; j++) {
-                    if (
-                    // this.gameGrid[i][j].x <= px && px <= this.gameGrid[i][j].x + this.gz_width &&
-                    // this.gameGrid[i][j].y <= py && py <= this.gameGrid[i][j].y + this.gz_width
-                    this.gameGrid[i][j].x - this.gz_width / 2 <= px && px <= this.gameGrid[i][j].x + this.gz_width / 2 &&
-                        this.gameGrid[i][j].y - this.gz_width / 2 <= py && py <= this.gameGrid[i][j].y + this.gz_width / 2) {
-                        return {
-                            r: i,
-                            c: j,
-                            find: true,
-                        };
-                    }
-                }
+        // 根据相对坐标，找到bomb影响的区块
+        GameData.prototype.getBombArea = function (px, py) {
+            var c = Math.floor(px / this.gz_width);
+            var r = Math.floor(py / this.gz_width);
+            if (r < -2 || c < -2 || r > 7 || c > 7) {
+                return {
+                    find: false
+                };
             }
+            var w = 3;
+            if (c == 7 || c == -2)
+                w = 1;
+            if (c == 6 || c == -1)
+                w = 2;
+            var h = 3;
+            if (r == 7 || r == -2)
+                h = 1;
+            if (r == 6 || r == -1)
+                h = 2;
             return {
-                find: false
+                r: r < 0 ? 0 : r,
+                c: c < 0 ? 0 : c,
+                w: w,
+                h: h,
+                find: true
             };
         };
+        GameData.prototype.getPos = function (px, py) {
+            // px,py 是相对于gameGroup的坐标
+            var c = Math.floor(px / this.gz_width);
+            var r = Math.floor(py / this.gz_width);
+            if (r < 0 || c < 0 || r > 7 || c > 7) {
+                return {
+                    find: false
+                };
+            }
+            return {
+                r: r,
+                c: c,
+                find: true
+            };
+        };
+        // public getPos(px: number, py: number): any {
+        //     // px,py 是相对于gameGroup的坐标
+        //     for (let i = 0; i < 8; i++) {
+        //         for (let j = 0; j < 8; j++) {
+        //             if (
+        //                 // this.gameGrid[i][j].x <= px && px <= this.gameGrid[i][j].x + this.gz_width &&
+        //                 // this.gameGrid[i][j].y <= py && py <= this.gameGrid[i][j].y + this.gz_width
+        //                 this.gameGrid[i][j].x - this.gz_width / 2 <= px && px <= this.gameGrid[i][j].x + this.gz_width / 2 &&
+        //                 this.gameGrid[i][j].y - this.gz_width / 2 <= py && py <= this.gameGrid[i][j].y + this.gz_width / 2
+        //             ) {
+        //                 return {
+        //                     r: i,
+        //                     c: j,
+        //                     find: true,
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     return {
+        //         find: false
+        //     }
+        // }
         // 初始化一批block（每一批3个）
         GameData.prototype.initBlock = function () {
             if (this.blocks.length > 0) {
@@ -244,6 +287,19 @@ var myClear;
                 }
             }
             this.gameScore += addscore;
+        };
+        GameData.prototype.bomb = function (area) {
+            var gzs = [];
+            for (var c = area.c; c < area.c + area.w; c++) {
+                for (var r = area.r; r < area.r + area.h; r++) {
+                    if (this.gameGrid[r][c].gz != null) {
+                        gzs.push(this.gameGrid[r][c].gz);
+                        this.gameGrid[r][c].gz = null;
+                        this.gameGrid[r][c].num = 0;
+                    }
+                }
+            }
+            return gzs;
         };
         // 消除
         GameData.prototype.doClear = function () {

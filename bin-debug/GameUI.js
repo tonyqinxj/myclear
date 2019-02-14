@@ -47,6 +47,7 @@ var GameUI = (function (_super) {
     __extends(GameUI, _super);
     function GameUI(main) {
         var _this = _super.call(this) || this;
+        _this.rank_isdisplay = false;
         _this.main = main;
         _this.opdata = [];
         _this.shadow = [];
@@ -62,9 +63,17 @@ var GameUI = (function (_super) {
     };
     GameUI.prototype.childrenCreated = function () {
         _super.prototype.childrenCreated.call(this);
+        var platform = window.platform;
+        if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
+            platform.openDataContext.postMessage({
+                command: 'loadRes'
+            });
+        }
         this.init();
     };
     GameUI.prototype.init = function () {
+        this.lastcleartime = 0;
+        this.cleartimes = 0;
         this.gz_width = this.game.width / 8;
         this.fk_width = this.gz_width - 2;
         this.gameData.init(this.gz_width, this.fk_width);
@@ -76,7 +85,7 @@ var GameUI = (function (_super) {
         this.music.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonMusicClick, this);
         this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonReplayClick, this);
         this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonRankClick, this);
-        this.bomb.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonBombClick, this);
+        this.bomb.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonBombClick, this);
         this.change.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonChangeClick, this);
         this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
         this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
@@ -86,6 +95,21 @@ var GameUI = (function (_super) {
         this.highScore.text = '' + this.main.highScore;
         var sound = RES.getRes('8_mp3');
         sound.play();
+        this.rank_pos = {
+            x: this.rank.x,
+            y: this.rank.y
+        };
+        this.left_bomb_times = 1;
+        this.bomb_times = 0;
+        this.left_change_times = 3;
+        this.change_times = 0;
+        this.left_relifes = 0;
+        this.relifes = 0;
+        this.hammerview = null;
+        this.bombview = null;
+        this.bomb_area = {
+            find: false
+        };
     };
     GameUI.prototype.initBlock = function () {
         // 对block的数据进行初始化
@@ -104,7 +128,16 @@ var GameUI = (function (_super) {
         for (var i = 0; i < 3; i++) {
             var opdata = this.opdata[i];
             if (i == id && opdata.blockView.getState() == myClear.Block_state.INIT) {
+                this.curdata = null;
+                this.curblockview = null;
+                if (opdata.canPut == false) {
+                    var sound_1 = RES.getRes("1_mp3");
+                    sound_1.play(0, 1);
+                    break;
+                }
                 this.curdata = opdata;
+                var sound = RES.getRes('putup_mp3');
+                sound.play(0, 1);
                 this.curblockview = opdata.blockView;
                 opdata.op.removeChild(opdata.blockView);
                 opdata.blockView.setState(myClear.Block_state.MOVING);
@@ -122,17 +155,19 @@ var GameUI = (function (_super) {
         }
     };
     GameUI.prototype.onTouchBegin = function (e) {
-        this.curblockview.x = e.stageX - this.x;
+        if (this.curdata == null)
+            return;
         this.curblockview.y = e.stageY - this.y - 300;
+        this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
         console.log('onBlockTouchBegin:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
-        var sound = RES.getRes('putup_mp3');
-        sound.play(0, 1);
     };
     GameUI.prototype.onTouchMove = function (e) {
-        this.curblockview.x = e.stageX - this.x;
+        if (this.curdata == null)
+            return;
+        this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
         this.curblockview.y = e.stageY - this.y - 300;
         console.log('onTouchMove:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
-        var pos = this.gameData.getPos(this.curblockview.x + this.fk_width / 2 - this.game.x, this.curblockview.y + this.fk_width / 2 - this.game.y);
+        var pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
         var canPutDown = false;
         var r = 0;
         var c = 0;
@@ -186,9 +221,11 @@ var GameUI = (function (_super) {
         }
     };
     GameUI.prototype.onTouchEnd = function (e) {
+        if (this.curdata == null)
+            return;
         console.log('onBlockTouchEnd:', e.stageX, e.stageY);
         // 点的转换
-        var pos = this.gameData.getPos(this.curblockview.x + this.fk_width / 2 - this.game.x, this.curblockview.y + this.fk_width / 2 - this.game.y);
+        var pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
         var canPutDown = false;
         var r = 0;
         var c = 0;
@@ -213,6 +250,7 @@ var GameUI = (function (_super) {
             // block还原
             this.curdata.op.addChild(this.curblockview);
             this.curblockview.setState(myClear.Block_state.INIT);
+            this.curblockview = null;
             //this.curblockview.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onBlockTouchBegin1, this);
         }
         this.touchEnabled = false;
@@ -250,14 +288,60 @@ var GameUI = (function (_super) {
     };
     GameUI.prototype.onButtonRankClick = function (e) {
         console.log('onButtonRankClick');
-        var sound = RES.getRes("1_mp3");
-        sound.play(0, 1);
+        var platform = window.platform;
+        var haveOpenData = false;
+        if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
+            haveOpenData = true;
+        }
+        if (!haveOpenData)
+            return;
+        // let sound: egret.Sound = RES.getRes("1_mp3");
+        // sound.play(0, 1);
+        if (this.rank_isdisplay) {
+            this.rank_bitmap.parent && this.rank_bitmap.parent.removeChild(this.rank_bitmap);
+            this.rankingListMask.parent && this.rankingListMask.parent.removeChild(this.rankingListMask);
+            this.rank_isdisplay = false;
+            platform.openDataContext.postMessage({
+                isDisplay: this.rank_isdisplay,
+                text: 'hello',
+                year: (new Date()).getFullYear(),
+                command: 'close'
+            });
+            this.topGroup.addChild(this.rank);
+            this.rank.x = this.rank_pos.x;
+            this.rank.y = this.rank_pos.y;
+        }
+        else {
+            //处理遮罩，避免开放数据域事件影响主域。
+            this.rankingListMask = new egret.Shape();
+            this.rankingListMask.graphics.beginFill(0x000000, 1);
+            this.rankingListMask.graphics.drawRect(0, 0, this.width, this.height);
+            this.rankingListMask.graphics.endFill();
+            this.rankingListMask.alpha = 0.5;
+            this.rankingListMask.touchEnabled = true;
+            this.addChild(this.rankingListMask);
+            //简单实现，打开这关闭使用一个按钮。
+            this.addChild(this.rank);
+            //主要示例代码开始
+            this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.width, 1344);
+            // this.rank_bitmap.x = 0;
+            // this.rank_bitmap.y = 0;
+            // this.rank_bitmap.width = this.width;
+            // this.rank_bitmap.height = this.height;
+            this.addChild(this.rank_bitmap);
+            //主域向子域发送自定义消息
+            platform.openDataContext.postMessage({
+                isDisplay: this.rank_isdisplay,
+                text: 'hello',
+                year: (new Date()).getFullYear(),
+                command: "open"
+            });
+            //主要示例代码结束            
+            this.rank_isdisplay = true;
+        }
     };
     GameUI.prototype.onButtonMusicClick = function (e) {
         console.log('onButtonMusicClick');
-    };
-    GameUI.prototype.onButtonBombClick = function (e) {
-        console.log('onButtonBombClick');
     };
     GameUI.prototype.onButtonChangeClick = function (e) {
         console.log('onButtonChangeClick');
@@ -301,7 +385,16 @@ var GameUI = (function (_super) {
                 this.clearGz(i, clearData.gzs[i]);
             }
             this.showScore(clearData.addscore, clearData.gzs[0].x, clearData.gzs[0].y);
-            var sound_res_name = (clearData.clears + 1) + '_mp3';
+            var tnow = new Date().getTime();
+            if (tnow - this.lastcleartime < 5000) {
+                this.cleartimes++;
+            }
+            else {
+                this.cleartimes = 2;
+            }
+            this.lastcleartime = tnow;
+            var sound_res_name = this.cleartimes + '_mp3';
+            console.log('sound', this.cleartimes, sound_res_name);
             var sound = RES.getRes(sound_res_name);
             sound.play(0, 1);
         }
@@ -346,11 +439,29 @@ var GameUI = (function (_super) {
         var overdata = this.gameData.checkOver();
         if (overdata.num > 0) {
             // 灰度不可用的
+            for (var i = 0; i < 3; i++) {
+                var block = this.gameData.blocks[i];
+                if (block.isPut == false) {
+                    if (block.canPut) {
+                        this.opdata[i].blockView.alpha = 1;
+                    }
+                    else {
+                        this.opdata[i].blockView.alpha = 0.5;
+                    }
+                }
+            }
         }
         if (overdata.over) {
             // 结束逻辑执行
             if (this.main.highScore < this.gameData.gameScore) {
                 this.main.highScore = this.gameData.gameScore;
+                var platform_1 = window.platform;
+                if (platform_1 && platform_1.openDataContext && platform_1.openDataContext.postMessage) {
+                    platform_1.openDataContext.postMessage({
+                        command: 'save',
+                        score: '' + this.main.highScore,
+                    });
+                }
             }
             this.highScore.text = '' + this.main.highScore;
             this.goOver().catch(function (e) {
@@ -396,6 +507,72 @@ var GameUI = (function (_super) {
                 }
             });
         });
+    };
+    GameUI.prototype.onButtonBombClick = function (e) {
+        console.log('onButtonBombClick');
+        if (this.curblockview) {
+            this.onTouchEnd(e);
+        }
+        // 创建锤子模型
+        if (this.hammerview == null) {
+            this.hammerview = ResTools.createBitmapByName('game_hammer_png');
+            this.hammerview.width = 2 * this.gz_width;
+            this.hammerview.height = 2 * this.gz_width;
+            this.addChild(this.hammerview);
+        }
+        // 创建阴影模型
+        if (this.bombview == null) {
+            this.bombview = new egret.Shape();
+            this.bombview.graphics.beginFill(0x000000, 0.5);
+            this.bombview.graphics.drawRect(0, 0, this.gz_width * 3, this.gz_width * 3);
+            this.bombview.graphics.endFill();
+        }
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_END, this.onBombTouchEnd, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_CANCEL, this.onBombTouchEnd, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.onBombTouchEnd, this);
+    };
+    GameUI.prototype.onBombTouchBegin = function (e) {
+        console.log('onBombTouchBegin');
+        this.hammerview.y = e.stageY - this.y - 300;
+        this.hammerview.x = e.stageX - this.x - this.hammerview.width / 2;
+    };
+    GameUI.prototype.onBombTouchMove = function (e) {
+        this.hammerview.y = e.stageY - this.y - 300;
+        this.hammerview.x = e.stageX - this.x - this.hammerview.width / 2;
+        var area = this.gameData.getBombArea(this.hammerview.x + this.gz_width / 2 - this.game.x, this.hammerview.y + this.gz_width / 2 - this.game.y);
+        console.log('onBombTouchMove:', area);
+        this.bomb_area = area;
+        if (area.find) {
+            this.game.addChild(this.bombview);
+            this.bombview.x = area.c * this.gz_width;
+            this.bombview.y = area.r * this.gz_width;
+            this.bombview.width = area.w * this.gz_width;
+            this.bombview.height = area.h * this.gz_width;
+        }
+        else {
+            if (this.bombview.parent)
+                this.bombview.parent.removeChild(this.bombview);
+        }
+    };
+    GameUI.prototype.onBombTouchEnd = function (e) {
+        console.log('onBombTouchEnd');
+        if (this.bomb_area.find) {
+            var bomb_gzs = this.gameData.bomb(this.bomb_area);
+            for (var i = 0; i < bomb_gzs.length; i++) {
+                this.clearGz(i, bomb_gzs[i]);
+            }
+        }
+        if (this.bombview.parent)
+            this.bombview.parent.removeChild(this.bombview);
+        if (this.hammerview.parent)
+            this.hammerview.parent.removeChild(this.hammerview);
+        this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
+        this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);
+        this.removeEventListener(egret.TouchEvent.TOUCH_END, this.onBombTouchEnd, this);
+        this.removeEventListener(egret.TouchEvent.TOUCH_CANCEL, this.onBombTouchEnd, this);
+        this.removeEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.onBombTouchEnd, this);
     };
     return GameUI;
 }(eui.Component));

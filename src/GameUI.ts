@@ -25,6 +25,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private curdata: any;
 	private curblockview: BlockView;	// 当前正在操作的组合格子
 
+	private hammerview: egret.Bitmap; // 锤子
+	private bombview: egret.Shape; // 用于bomb的区域大小
+
 	private shadow: Array<any>; // 移动过程中的阴影 [gz]
 	private shadow_pos: any; // {r,c}
 
@@ -38,8 +41,21 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private rank_bitmap: egret.Bitmap;
 	private rank_isdisplay = false;
 	private rankingListMask: egret.Shape;
-	private rank_pos:any;
+	private rank_pos: any;
 
+
+	// 换block
+	private left_change_times: number; // 剩余可换次数
+	private change_times: number; // 当前换过的次数，最多不超过3次
+
+	// 锤子
+	private left_bomb_times: number; // 剩余bomb
+	private bomb_times: number;// 已经用过的bomb数
+	private bomb_area:any; // 需要锤掉的区域
+
+	// 复活
+	private left_relifes: number; // 剩余的复活次数
+	private relifes: number; // 复活过的次数
 
 	public constructor(main: Main) {
 		super();
@@ -66,9 +82,12 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		super.childrenCreated();
 
 		const platform: any = window.platform;
-		platform.openDataContext.postMessage({
-			command: 'loadRes'
-		});
+		if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
+			platform.openDataContext.postMessage({
+				command: 'loadRes'
+			});
+
+		}
 
 		this.init();
 
@@ -97,7 +116,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.music.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonMusicClick, this);
 		this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonReplayClick, this);
 		this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonRankClick, this);
-		this.bomb.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonBombClick, this);
+		this.bomb.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonBombClick, this);
 		this.change.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonChangeClick, this);
 
 		this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
@@ -114,11 +133,26 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 
 		this.rank_pos = {
-			x:this.rank.x,
-			y:this.rank.y
+			x: this.rank.x,
+			y: this.rank.y
 		};
 
 
+		this.left_bomb_times = 1;
+		this.bomb_times = 0;
+
+		this.left_change_times = 3;
+		this.change_times = 0;
+
+		this.left_relifes = 0;
+		this.relifes = 0;
+
+		this.hammerview = null;
+		this.bombview = null;
+
+		this.bomb_area = {
+			find:false
+		};
 	}
 	private initBlock(): void {
 		// 对block的数据进行初始化
@@ -194,12 +228,16 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 
 	private onTouchMove(e: egret.TouchEvent): void {
+
+		if (this.curdata == null) return;
+
+
 		this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
 		this.curblockview.y = e.stageY - this.y - 300;
 
 		console.log('onTouchMove:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
 
-		let pos = this.gameData.getPos(this.curblockview.x + this.fk_width / 2 - this.game.x, this.curblockview.y + this.fk_width / 2 - this.game.y);
+		let pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
 
 		let canPutDown = false;
 		let r = 0;
@@ -269,10 +307,12 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 
 	private onTouchEnd(e: egret.TouchEvent): void {
+		if (this.curdata == null) return;
 		console.log('onBlockTouchEnd:', e.stageX, e.stageY);
 
+
 		// 点的转换
-		let pos = this.gameData.getPos(this.curblockview.x + this.fk_width / 2 - this.game.x, this.curblockview.y + this.fk_width / 2 - this.game.y);
+		let pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
 		let canPutDown = false;
 		let r = 0;
 		let c = 0;
@@ -304,6 +344,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			// block还原
 			this.curdata.op.addChild(this.curblockview);
 			this.curblockview.setState(myClear.Block_state.INIT);
+
+			this.curblockview = null;
 			//this.curblockview.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onBlockTouchBegin1, this);
 
 
@@ -357,19 +399,29 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	protected onButtonRankClick(e: egret.TouchEvent): void {
 		console.log('onButtonRankClick');
+		let platform: any = window.platform;
+		let haveOpenData = false;
+
+		if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
+			haveOpenData = true;
+		}
+
+		if (!haveOpenData) return;
 		// let sound: egret.Sound = RES.getRes("1_mp3");
 		// sound.play(0, 1);
-		let platform: any = window.platform;
+
 		if (this.rank_isdisplay) {
 			this.rank_bitmap.parent && this.rank_bitmap.parent.removeChild(this.rank_bitmap);
 			this.rankingListMask.parent && this.rankingListMask.parent.removeChild(this.rankingListMask);
 			this.rank_isdisplay = false;
+
 			platform.openDataContext.postMessage({
 				isDisplay: this.rank_isdisplay,
 				text: 'hello',
 				year: (new Date()).getFullYear(),
 				command: 'close'
 			});
+
 
 			this.topGroup.addChild(this.rank);
 			this.rank.x = this.rank_pos.x;
@@ -387,7 +439,13 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			//简单实现，打开这关闭使用一个按钮。
 			this.addChild(this.rank);
 			//主要示例代码开始
-			this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.width, this.height);
+
+			this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.width, 1344);
+			// this.rank_bitmap.x = 0;
+			// this.rank_bitmap.y = 0;
+			// this.rank_bitmap.width = this.width;
+			// this.rank_bitmap.height = this.height;
+
 			this.addChild(this.rank_bitmap);
 			//主域向子域发送自定义消息
 			platform.openDataContext.postMessage({
@@ -407,9 +465,6 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 
 
-	protected onButtonBombClick(e: egret.TouchEvent): void {
-		console.log('onButtonBombClick');
-	}
 
 
 	protected onButtonChangeClick(e: egret.TouchEvent): void {
@@ -553,6 +608,15 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			// 结束逻辑执行
 			if (this.main.highScore < this.gameData.gameScore) {
 				this.main.highScore = this.gameData.gameScore;
+
+				const platform: any = window.platform;
+				if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
+					platform.openDataContext.postMessage({
+						command: 'save',
+						score: '' + this.main.highScore,
+					});
+				}
+
 			}
 			this.highScore.text = '' + this.main.highScore;
 			this.goOver().catch(e => {
@@ -588,4 +652,83 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			console.error(e);
 		}
 	}
+
+	protected onButtonBombClick(e: egret.TouchEvent): void {
+		console.log('onButtonBombClick');
+
+		if (this.curblockview) {
+			this.onTouchEnd(e);
+		}
+
+		// 创建锤子模型
+		if (this.hammerview == null) {
+			this.hammerview = ResTools.createBitmapByName('game_hammer_png');
+			this.hammerview.width = 2*this.gz_width;
+			this.hammerview.height = 2*this.gz_width;
+			this.addChild(this.hammerview);
+		}
+
+		// 创建阴影模型
+		if (this.bombview == null) {
+			this.bombview = new egret.Shape();
+			this.bombview.graphics.beginFill(0x000000, 0.5);
+			this.bombview.graphics.drawRect(0, 0, this.gz_width * 3, this.gz_width * 3);
+			this.bombview.graphics.endFill();
+		}
+
+
+		this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
+		this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);
+		this.addEventListener(egret.TouchEvent.TOUCH_END, this.onBombTouchEnd, this);
+		this.addEventListener(egret.TouchEvent.TOUCH_CANCEL, this.onBombTouchEnd, this);
+		this.addEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.onBombTouchEnd, this);
+	}
+
+
+	private onBombTouchBegin(e: egret.TouchEvent): void {
+		console.log('onBombTouchBegin');
+		this.hammerview.y = e.stageY - this.y - 300;
+		this.hammerview.x = e.stageX - this.x - this.hammerview.width / 2;
+	}
+
+	private onBombTouchMove(e: egret.TouchEvent): void {
+		
+		this.hammerview.y = e.stageY - this.y - 300;
+		this.hammerview.x = e.stageX - this.x - this.hammerview.width / 2;
+		let area = this.gameData.getBombArea(this.hammerview.x + this.gz_width / 2 - this.game.x, this.hammerview.y + this.gz_width / 2 - this.game.y);
+		console.log('onBombTouchMove:', area);
+		this.bomb_area = area;
+		if (area.find) {
+			this.game.addChild(this.bombview);
+			this.bombview.x = area.c * this.gz_width;
+			this.bombview.y = area.r * this.gz_width;
+			this.bombview.width = area.w * this.gz_width;
+			this.bombview.height = area.h * this.gz_width;
+		} else {
+			if (this.bombview.parent) this.bombview.parent.removeChild(this.bombview);
+		}
+
+	}
+
+	private onBombTouchEnd(e: egret.TouchEvent): void {
+		console.log('onBombTouchEnd');
+
+		if(this.bomb_area.find){
+			let bomb_gzs = this.gameData.bomb(this.bomb_area);
+			for(let i=0;i<bomb_gzs.length;i++){
+				this.clearGz(i, bomb_gzs[i]);
+			}
+		}
+
+		if (this.bombview.parent) this.bombview.parent.removeChild(this.bombview);
+		if (this.hammerview.parent) this.hammerview.parent.removeChild(this.hammerview);
+
+		this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
+		this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);
+		this.removeEventListener(egret.TouchEvent.TOUCH_END, this.onBombTouchEnd, this);
+		this.removeEventListener(egret.TouchEvent.TOUCH_CANCEL, this.onBombTouchEnd, this);
+		this.removeEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.onBombTouchEnd, this);
+	}
+
+
 }

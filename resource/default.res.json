@@ -9,7 +9,7 @@
 			"name": "start"
 		},
 		{
-			"keys": "game_v_open_png,game_v_close_png,game_tuijian_open_png,game_tuijian_close_png,game_score_png,game_replay_png,game_high_score_png,game_gz_mei_png,game_gz_hong_png,game_gz_hei_png,game_gz_fang_png,game_friend_rank_png,game_change_png,game_bomb_png,game_bg_png,border_png,0_mp3,1_mp3,10_mp3,2_mp3,3_mp3,4_mp3,5_mp3,6_mp3,7_mp3,8_mp3,9_mp3,bgstart_mp3,disappear_mp3,putdown_mp3,putup_mp3,shiban_mp3",
+			"keys": "game_v_open_png,game_v_close_png,game_tuijian_open_png,game_tuijian_close_png,game_score_png,game_replay_png,game_high_score_png,game_gz_mei_png,game_gz_hong_png,game_gz_hei_png,game_gz_fang_png,game_friend_rank_png,game_change_png,game_bomb_png,game_bg_png,border_png,0_mp3,1_mp3,10_mp3,2_mp3,3_mp3,4_mp3,5_mp3,6_mp3,7_mp3,8_mp3,9_mp3,bgstart_mp3,disappear_mp3,putdown_mp3,putup_mp3,shiban_mp3,game_get_png,game_hammer_png",
 			"name": "game"
 		},
 		{
@@ -332,6 +332,16 @@
 			"url": "sounds/shiban.mp3",
 			"type": "sound",
 			"name": "shiban_mp3"
+		},
+		{
+			"url": "assets/game/game_get.png",
+			"type": "image",
+			"name": "game_get_png"
+		},
+		{
+			"url": "assets/game/game_hammer.png",
+			"type": "image",
+			"name": "game_hammer_png"
 		}
 	]
 }

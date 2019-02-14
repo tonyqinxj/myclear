@@ -79,7 +79,8 @@ class Main extends eui.UILayer {
         try {
             const loadingView = new LoadingUI();
             this.stage.addChild(loadingView);
-            await RES.loadConfig("resource/default.res.json", "resource/");
+            //await RES.loadConfig("default.res.json", "https://prizedraw.myxianxiaobao.com/resource");
+            await RES.loadConfig("default.res.json", "/resource");
             await this.loadTheme();
             await RES.loadGroup("start", 0, loadingView);
             this.stage.removeChild(loadingView);
