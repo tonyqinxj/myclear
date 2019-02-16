@@ -51,7 +51,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	// 锤子
 	private left_bomb_times: number; // 剩余bomb
 	private bomb_times: number;// 已经用过的bomb数
-	private bomb_area:any; // 需要锤掉的区域
+	private bomb_area: any; // 需要锤掉的区域
 
 	// 复活
 	private left_relifes: number; // 剩余的复活次数
@@ -151,7 +151,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.bombview = null;
 
 		this.bomb_area = {
-			find:false
+			find: false
 		};
 	}
 	private initBlock(): void {
@@ -161,6 +161,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		// 初始化op视图
 		for (let i = 0; i < 3; i++) {
+
+			if (this.opdata[i].blockView && this.opdata[i].blockView.parent) this.opdata[i].blockView.parent.removeChild(this.opdata[i].blockView);
 			this.opdata[i].blockView = new BlockView(this.opdata[i].op, this.gz_width, this.fk_width, this.gameData.blocks[i]);
 			this.opdata[i].op.addChild(this.opdata[i].blockView);
 			// this.opdata[i].op.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonOpClick, this);
@@ -184,7 +186,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 				this.curdata = null;
 				this.curblockview = null;
 
-				if (opdata.canPut == false) {
+				if (this.gameData.blocks[i].canPut == false) {
 					let sound: egret.Sound = RES.getRes("1_mp3");
 					sound.play(0, 1);
 					break;
@@ -469,6 +471,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	protected onButtonChangeClick(e: egret.TouchEvent): void {
 		console.log('onButtonChangeClick');
+		this.initBlock();
 	}
 
 
@@ -590,19 +593,19 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private checkOver() {
 
 		let overdata = this.gameData.checkOver();
-		if (overdata.num > 0) {
-			// 灰度不可用的
-			for (let i = 0; i < 3; i++) {
-				let block = this.gameData.blocks[i];
-				if (block.isPut == false) {
-					if (block.canPut) {
-						this.opdata[i].blockView.alpha = 1;
-					} else {
-						this.opdata[i].blockView.alpha = 0.5;
-					}
+
+		// 灰度不可用的
+		for (let i = 0; i < 3; i++) {
+			let block = this.gameData.blocks[i];
+			if (block.isPut == false) {
+				if (block.canPut) {
+					this.opdata[i].blockView.setColorFilter(false);
+				} else {
+					this.opdata[i].blockView.setColorFilter(true);
 				}
 			}
 		}
+
 
 		if (overdata.over) {
 			// 结束逻辑执行
@@ -663,8 +666,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		// 创建锤子模型
 		if (this.hammerview == null) {
 			this.hammerview = ResTools.createBitmapByName('game_hammer_png');
-			this.hammerview.width = 2*this.gz_width;
-			this.hammerview.height = 2*this.gz_width;
+			this.hammerview.width = 2 * this.gz_width;
+			this.hammerview.height = 2 * this.gz_width;
 			this.addChild(this.hammerview);
 		}
 
@@ -675,6 +678,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			this.bombview.graphics.drawRect(0, 0, this.gz_width * 3, this.gz_width * 3);
 			this.bombview.graphics.endFill();
 		}
+
 
 
 		this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
@@ -692,7 +696,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 
 	private onBombTouchMove(e: egret.TouchEvent): void {
-		
+
 		this.hammerview.y = e.stageY - this.y - 300;
 		this.hammerview.x = e.stageX - this.x - this.hammerview.width / 2;
 		let area = this.gameData.getBombArea(this.hammerview.x + this.gz_width / 2 - this.game.x, this.hammerview.y + this.gz_width / 2 - this.game.y);
@@ -713,15 +717,17 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private onBombTouchEnd(e: egret.TouchEvent): void {
 		console.log('onBombTouchEnd');
 
-		if(this.bomb_area.find){
+		if (this.bomb_area.find) {
 			let bomb_gzs = this.gameData.bomb(this.bomb_area);
-			for(let i=0;i<bomb_gzs.length;i++){
+			for (let i = 0; i < bomb_gzs.length; i++) {
 				this.clearGz(i, bomb_gzs[i]);
 			}
 		}
 
 		if (this.bombview.parent) this.bombview.parent.removeChild(this.bombview);
 		if (this.hammerview.parent) this.hammerview.parent.removeChild(this.hammerview);
+
+		this.checkOver();
 
 		this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
 		this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);

@@ -18,6 +18,7 @@ var BlockView = (function (_super) {
         _this.blockInfo = blockInfo;
         _this.block_scale = 0.35;
         _this.state = null;
+        _this.fklist = [];
         return _this;
         //this.op.addChild(this);
     }
@@ -42,6 +43,7 @@ var BlockView = (function (_super) {
                     fk.width = this.fk_width;
                     fk.height = this.fk_width;
                     this.addChild(fk);
+                    this.fklist.push(fk);
                 }
             }
         }
@@ -69,6 +71,25 @@ var BlockView = (function (_super) {
             case myClear.Block_state.END:
                 this.removeChildren();
                 break;
+        }
+    };
+    BlockView.prototype.setColorFilter = function (isGray) {
+        if (isGray) {
+            var colorMatrix = [
+                0.3, 0, 0, 0, 100,
+                0.3, 0, 0, 0, 0,
+                0.3, 0, 0, 0, 0,
+                0, 0, 0, 1, 0
+            ];
+            var colorFlilter = new egret.ColorMatrixFilter(colorMatrix);
+            for (var i = 0; i < this.fklist.length; i++) {
+                this.fklist[i].filters = [colorFlilter];
+            }
+        }
+        else {
+            for (var i = 0; i < this.fklist.length; i++) {
+                this.fklist[i].filters = [];
+            }
         }
     };
     BlockView.prototype.getState = function () {

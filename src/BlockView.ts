@@ -10,6 +10,8 @@ class BlockView extends eui.Group {
 
 	private state: number;
 
+	private fklist: Array<egret.Bitmap>;
+
 	public constructor(op: eui.Group, gz_width: number, fk_width: number, blockInfo: any) {
 		super();
 		this.op = op;
@@ -19,7 +21,7 @@ class BlockView extends eui.Group {
 		this.blockInfo = blockInfo;
 		this.block_scale = 0.35;
 		this.state = null;
-
+		this.fklist = [];
 		//this.op.addChild(this);
 	}
 
@@ -52,6 +54,7 @@ class BlockView extends eui.Group {
 					fk.height = this.fk_width;
 
 					this.addChild(fk);
+					this.fklist.push(fk);
 				}
 			}
 		}
@@ -63,7 +66,7 @@ class BlockView extends eui.Group {
 		this.width = cols * this.gz_width;
 		this.height = rows * this.gz_width;
 
-		
+
 
 		this.setState(myClear.Block_state.INIT);
 	}
@@ -75,11 +78,11 @@ class BlockView extends eui.Group {
 				this.scaleX = this.block_scale;
 				this.scaleY = this.block_scale;
 
-				this.x = (this.op.width - this.width * this.scaleX ) / 2;
-				this.y = (this.op.height - this.height * this.scaleY ) / 2;
+				this.x = (this.op.width - this.width * this.scaleX) / 2;
+				this.y = (this.op.height - this.height * this.scaleY) / 2;
 				console.log('b:', this.op.x, this.op.y, this.op.width, this.op.height, this.width, this.height, this.x, this.y,
-				 this.width * this.scaleX,
-				 this.height * this.scaleY
+					this.width * this.scaleX,
+					this.height * this.scaleY
 				);
 				break;
 			case myClear.Block_state.MOVING:
@@ -91,6 +94,29 @@ class BlockView extends eui.Group {
 				break;
 		}
 	}
+
+	public setColorFilter(isGray: boolean): void {
+		if (isGray) {
+			var colorMatrix = [
+				0.3, 0, 0, 0, 100,
+				0.3, 0, 0, 0, 0,
+				0.3, 0, 0, 0, 0,
+				0, 0, 0, 1, 0
+			];
+			var colorFlilter = new egret.ColorMatrixFilter(colorMatrix);
+
+			for (let i = 0; i < this.fklist.length; i++) {
+				this.fklist[i].filters = [colorFlilter];
+			}
+
+		} else {
+			for (let i = 0; i < this.fklist.length; i++) {
+				this.fklist[i].filters = [];
+			}
+		}
+
+	}
+
 	public getState(): number {
 		return this.state;
 	}

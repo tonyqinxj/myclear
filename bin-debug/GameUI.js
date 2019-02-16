@@ -116,6 +116,8 @@ var GameUI = (function (_super) {
         this.gameData.initBlock();
         // 初始化op视图
         for (var i = 0; i < 3; i++) {
+            if (this.opdata[i].blockView && this.opdata[i].blockView.parent)
+                this.opdata[i].blockView.parent.removeChild(this.opdata[i].blockView);
             this.opdata[i].blockView = new BlockView(this.opdata[i].op, this.gz_width, this.fk_width, this.gameData.blocks[i]);
             this.opdata[i].op.addChild(this.opdata[i].blockView);
             // this.opdata[i].op.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonOpClick, this);
@@ -130,7 +132,7 @@ var GameUI = (function (_super) {
             if (i == id && opdata.blockView.getState() == myClear.Block_state.INIT) {
                 this.curdata = null;
                 this.curblockview = null;
-                if (opdata.canPut == false) {
+                if (this.gameData.blocks[i].canPut == false) {
                     var sound_1 = RES.getRes("1_mp3");
                     sound_1.play(0, 1);
                     break;
@@ -345,6 +347,7 @@ var GameUI = (function (_super) {
     };
     GameUI.prototype.onButtonChangeClick = function (e) {
         console.log('onButtonChangeClick');
+        this.initBlock();
     };
     GameUI.prototype.blockAddToGrid = function (x, y, blockInfo) {
         // blockInfo { blockId, colorId}
@@ -437,17 +440,15 @@ var GameUI = (function (_super) {
     };
     GameUI.prototype.checkOver = function () {
         var overdata = this.gameData.checkOver();
-        if (overdata.num > 0) {
-            // 灰度不可用的
-            for (var i = 0; i < 3; i++) {
-                var block = this.gameData.blocks[i];
-                if (block.isPut == false) {
-                    if (block.canPut) {
-                        this.opdata[i].blockView.alpha = 1;
-                    }
-                    else {
-                        this.opdata[i].blockView.alpha = 0.5;
-                    }
+        // 灰度不可用的
+        for (var i = 0; i < 3; i++) {
+            var block = this.gameData.blocks[i];
+            if (block.isPut == false) {
+                if (block.canPut) {
+                    this.opdata[i].blockView.setColorFilter(false);
+                }
+                else {
+                    this.opdata[i].blockView.setColorFilter(true);
                 }
             }
         }
