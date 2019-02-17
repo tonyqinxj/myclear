@@ -396,6 +396,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 	protected onButtonReplayClick(e: egret.TouchEvent): void {
 		console.log('onButtonReplayClick');
+		let platform: any = window.platform;
+		if(platform && platform.shareAppMessage){
+			platform.shareAppMessage();
+		}
 	}
 
 
@@ -471,7 +475,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	protected onButtonChangeClick(e: egret.TouchEvent): void {
 		console.log('onButtonChangeClick');
+		if(this.change_times >=3 ) return;
+		
 		this.initBlock();
+		this.change_times++;
 	}
 
 
@@ -612,6 +619,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			if (this.main.highScore < this.gameData.gameScore) {
 				this.main.highScore = this.gameData.gameScore;
 
+				this.main.saveScore();
+
 				const platform: any = window.platform;
 				if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
 					platform.openDataContext.postMessage({
@@ -658,6 +667,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	protected onButtonBombClick(e: egret.TouchEvent): void {
 		console.log('onButtonBombClick');
+		if(this.bomb_times>0){
+
+			return;
+		}
 
 		if (this.curblockview) {
 			this.onTouchEnd(e);
@@ -726,8 +739,11 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		if (this.bombview.parent) this.bombview.parent.removeChild(this.bombview);
 		if (this.hammerview.parent) this.hammerview.parent.removeChild(this.hammerview);
+		this.bomb_times++;
 
 		this.checkOver();
+
+
 
 		this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
 		this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);

@@ -30,14 +30,28 @@
 class Main extends eui.UILayer {
     private curPage: eui.Component;
 
-    public highScore:number;
+    public highScore: number;
+
+    public saveScore() {
+        var key: string = "bestscore";
+        var value: string = ""+this.highScore;
+        egret.localStorage.setItem(key, value);
+    }
+
+    private getScore() :number{
+        var key: string = "bestscore";
+        let scorestr = egret.localStorage.getItem(key);
+        if(scorestr) return parseInt(scorestr);
+
+        return 0;
+    }
 
     protected createChildren(): void {
         super.createChildren();
 
         this.curPage = null;
 
-        this.highScore = 0;
+        this.highScore = this.getScore();
 
 
         egret.lifecycle.addLifecycleListener((context) => {

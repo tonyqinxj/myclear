@@ -347,7 +347,10 @@ var GameUI = (function (_super) {
     };
     GameUI.prototype.onButtonChangeClick = function (e) {
         console.log('onButtonChangeClick');
+        if (this.change_times >= 3)
+            return;
         this.initBlock();
+        this.change_times++;
     };
     GameUI.prototype.blockAddToGrid = function (x, y, blockInfo) {
         // blockInfo { blockId, colorId}
@@ -456,6 +459,7 @@ var GameUI = (function (_super) {
             // 结束逻辑执行
             if (this.main.highScore < this.gameData.gameScore) {
                 this.main.highScore = this.gameData.gameScore;
+                this.main.saveScore();
                 var platform_1 = window.platform;
                 if (platform_1 && platform_1.openDataContext && platform_1.openDataContext.postMessage) {
                     platform_1.openDataContext.postMessage({
@@ -511,6 +515,9 @@ var GameUI = (function (_super) {
     };
     GameUI.prototype.onButtonBombClick = function (e) {
         console.log('onButtonBombClick');
+        if (this.bomb_times > 0) {
+            return;
+        }
         if (this.curblockview) {
             this.onTouchEnd(e);
         }
@@ -569,6 +576,8 @@ var GameUI = (function (_super) {
             this.bombview.parent.removeChild(this.bombview);
         if (this.hammerview.parent)
             this.hammerview.parent.removeChild(this.hammerview);
+        this.bomb_times++;
+        this.checkOver();
         this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
         this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);
         this.removeEventListener(egret.TouchEvent.TOUCH_END, this.onBombTouchEnd, this);

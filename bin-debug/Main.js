@@ -76,10 +76,22 @@ var Main = (function (_super) {
     function Main() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    Main.prototype.saveScore = function () {
+        var key = "bestscore";
+        var value = "" + this.highScore;
+        egret.localStorage.setItem(key, value);
+    };
+    Main.prototype.getScore = function () {
+        var key = "bestscore";
+        var scorestr = egret.localStorage.getItem(key);
+        if (scorestr)
+            return parseInt(scorestr);
+        return 0;
+    };
     Main.prototype.createChildren = function () {
         _super.prototype.createChildren.call(this);
         this.curPage = null;
-        this.highScore = 0;
+        this.highScore = this.getScore();
         egret.lifecycle.addLifecycleListener(function (context) {
             // custom lifecycle plugin
         });
