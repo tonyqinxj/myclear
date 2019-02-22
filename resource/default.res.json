@@ -1,20 +1,16 @@
 {
 	"groups": [
 		{
-			"keys": "checkbox_select_disabled_png,checkbox_select_down_png,checkbox_select_up_png,checkbox_unselect_png,selected_png,border_png,header_png,radiobutton_select_disabled_png,radiobutton_select_down_png,radiobutton_select_up_png,radiobutton_unselect_png,roundthumb_png,thumb_png,track_png,tracklight_png,handle_png,off_png,on_png,button_down_png,button_up_png,thumb_pb_png,track_pb_png,track_sb_png,bg_jpg,egret_icon_png,description_json",
-			"name": "preload"
-		},
-		{
-			"keys": "start_bg_png,start_start_png,start_tip_png,start_title_png",
+			"keys": "start_bg_png,start_start_png,start_tip_png,start_title_png,start_start_bg_png,progress_bg_png,progress_front_png",
 			"name": "start"
 		},
 		{
-			"keys": "game_v_open_png,game_v_close_png,game_tuijian_open_png,game_tuijian_close_png,game_score_png,game_replay_png,game_high_score_png,game_gz_mei_png,game_gz_hong_png,game_gz_hei_png,game_gz_fang_png,game_friend_rank_png,game_change_png,game_bomb_png,game_bg_png,border_png,0_mp3,1_mp3,10_mp3,2_mp3,3_mp3,4_mp3,5_mp3,6_mp3,7_mp3,8_mp3,9_mp3,bgstart_mp3,disappear_mp3,putdown_mp3,putup_mp3,shiban_mp3,game_get_png,game_hammer_png",
+			"keys": "game_v_open_png,game_v_close_png,game_tuijian_open_png,game_tuijian_close_png,game_score_png,game_replay_png,game_high_score_png,game_gz_mei_png,game_gz_hong_png,game_gz_hei_png,game_gz_fang_png,game_friend_rank_png,game_change_png,game_bomb_png,game_bg_png,border_png,game_get_png,game_hammer_png,game_game_png,game_panel_png,game_nobomb_png,game_panel_1_png,over_share_png,over_replay_png,close_png,over_friend_rank_png",
 			"name": "game"
 		},
 		{
-			"keys": "over_restart_png,over_bg_png",
-			"name": "over"
+			"name": "preload",
+			"keys": "8_mp3"
 		}
 	],
 	"resources": [
@@ -134,16 +130,6 @@
 			"name": "track_sb_png"
 		},
 		{
-			"url": "assets/bg.jpg",
-			"type": "image",
-			"name": "bg_jpg"
-		},
-		{
-			"url": "assets/egret_icon.png",
-			"type": "image",
-			"name": "egret_icon_png"
-		},
-		{
 			"url": "config/description.json",
 			"type": "json",
 			"name": "description_json"
@@ -244,14 +230,89 @@
 			"name": "game_v_open_png"
 		},
 		{
-			"url": "assets/over/over_bg.png",
+			"url": "assets/game/game_get.png",
 			"type": "image",
-			"name": "over_bg_png"
+			"name": "game_get_png"
 		},
 		{
-			"url": "assets/over/over_restart.png",
+			"url": "assets/game/game_hammer.png",
 			"type": "image",
-			"name": "over_restart_png"
+			"name": "game_hammer_png"
+		},
+		{
+			"url": "assets/start/start_start_bg.png",
+			"type": "image",
+			"name": "start_start_bg_png"
+		},
+		{
+			"url": "assets/game/game_game.png",
+			"type": "image",
+			"name": "game_game_png"
+		},
+		{
+			"url": "assets/game/game_panel.png",
+			"type": "image",
+			"name": "game_panel_png"
+		},
+		{
+			"url": "assets/game/game_nobomb.png",
+			"type": "image",
+			"name": "game_nobomb_png"
+		},
+		{
+			"url": "assets/game/game_panel_1.png",
+			"type": "image",
+			"name": "game_panel_1_png"
+		},
+		{
+			"url": "assets/game/over_replay.png",
+			"type": "image",
+			"name": "over_replay_png"
+		},
+		{
+			"url": "assets/game/over_share.png",
+			"type": "image",
+			"name": "over_share_png"
+		},
+		{
+			"url": "assets/start/progress_front.png",
+			"type": "image",
+			"name": "progress_front_png"
+		},
+		{
+			"url": "assets/start/progress_bg.png",
+			"type": "image",
+			"name": "progress_bg_png"
+		},
+		{
+			"url": "assets/game/over_panel.png",
+			"type": "image",
+			"name": "over_panel_png"
+		},
+		{
+			"url": "assets/game/rank_gold.png",
+			"type": "image",
+			"name": "rank_gold_png"
+		},
+		{
+			"url": "assets/game/rank_copper.png",
+			"type": "image",
+			"name": "rank_copper_png"
+		},
+		{
+			"url": "assets/game/rank_silver.png",
+			"type": "image",
+			"name": "rank_silver_png"
+		},
+		{
+			"url": "assets/game/close.png",
+			"type": "image",
+			"name": "close_png"
+		},
+		{
+			"url": "assets/game/over_friend_rank.png",
+			"type": "image",
+			"name": "over_friend_rank_png"
 		},
 		{
 			"url": "sounds/0.mp3",
@@ -299,11 +360,6 @@
 			"name": "7_mp3"
 		},
 		{
-			"url": "sounds/8.mp3",
-			"type": "sound",
-			"name": "8_mp3"
-		},
-		{
 			"url": "sounds/9.mp3",
 			"type": "sound",
 			"name": "9_mp3"
@@ -334,14 +390,9 @@
 			"name": "shiban_mp3"
 		},
 		{
-			"url": "assets/game/game_get.png",
-			"type": "image",
-			"name": "game_get_png"
-		},
-		{
-			"url": "assets/game/game_hammer.png",
-			"type": "image",
-			"name": "game_hammer_png"
+			"name": "8_mp3",
+			"type": "sound",
+			"url": "sounds/8.mp3"
 		}
 	]
 }

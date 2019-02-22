@@ -13,10 +13,12 @@
 		"bin-debug/AssetAdapter.js",
 		"bin-debug/GameData.js",
 		"bin-debug/GameUI.js",
+		"bin-debug/HttpTools.js",
 		"bin-debug/LoadingUI.js",
 		"bin-debug/BlockView.js",
 		"bin-debug/OverUI.js",
 		"bin-debug/Platform.js",
+		"bin-debug/RankUI.js",
 		"bin-debug/ResTools.js",
 		"bin-debug/StartUI.js",
 		"bin-debug/ThemeAdapter.js"

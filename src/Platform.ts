@@ -12,11 +12,12 @@ declare interface Platform {
 
     shareAppMessage(): Promise<any>;
 
+    playMusic(name:string, times:number):void;
+
 }
 
 class DebugPlatform implements Platform {
     
-    public  openDataContext:any;
     
     async getUserInfo() {
         return { nickName: "username" }
@@ -29,6 +30,10 @@ class DebugPlatform implements Platform {
     async shareAppMessage(){
         
     }
+
+    playMusic(name:string, times:number):void{
+
+    } 
 }
 
 

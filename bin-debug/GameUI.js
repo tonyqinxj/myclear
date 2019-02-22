@@ -8,67 +8,72 @@ var __extends = this && this.__extends || function __extends(t, e) {
 for (var i in e) e.hasOwnProperty(i) && (t[i] = e[i]);
 r.prototype = e.prototype, t.prototype = new r();
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 var GameUI = (function (_super) {
     __extends(GameUI, _super);
     function GameUI(main) {
         var _this = _super.call(this) || this;
-        _this.rank_isdisplay = false;
+        // 音效
+        _this.sounds = [];
         _this.main = main;
         _this.opdata = [];
         _this.shadow = [];
         _this.shadow_pos = null;
         _this.curdata = null;
         _this.curblockview = null;
-        _this.resOverOK = false;
         _this.gameData = new myClear.GameData();
         return _this;
     }
+    GameUI.prototype.playMusic = function (name, times) {
+        console.log('play:', name, times);
+        var res_name = 'resource/sounds/' + name.match(/(.+)_mp3/)[1] + '.mp3';
+        var platform = window.platform;
+        platform.playMusic(res_name, times);
+        return;
+        // 方法一
+        // for (let i = 0; i < this.sounds.length; i++) {
+        // 	let sound = this.sounds[i];
+        // 	if (sound.name == name) {
+        // 		sound.sound.play(0, times);
+        // 		return;
+        // 	}
+        // }
+        // var loader: egret.URLLoader = new egret.URLLoader();
+        // loader.addEventListener(egret.Event.COMPLETE, function loadOver(event: egret.Event) {
+        // 	var sound: egret.Sound = loader.data;
+        // 	sound.play(0, times);
+        // 	this.sounds.push({
+        // 		name: name,
+        // 		sound: sound
+        // 	})
+        // }, this);
+        // loader.dataFormat = egret.URLLoaderDataFormat.SOUND;
+        // loader.load(new egret.URLRequest(res_name));
+        // 方法二
+        // let sound: egret.Sound = new egret.Sound();
+        // sound.addEventListener(egret.Event.COMPLETE, (event: egret.Event) => {
+        // 	sound.play(0, times);
+        // 	this.sounds.push({
+        // 		name: name,
+        // 		sound: sound
+        // 	})
+        // }, this);
+        // sound.addEventListener(egret.IOErrorEvent.IO_ERROR, (event: egret.IOErrorEvent) => {
+        // 	console.log("loaded error!");
+        // }, this);
+        // sound.load(res_name);
+        // 方法三
+        //let sound: egret.Sound = RES.getRes(name);
+        //sound.play(0, times);
+        // this.sounds.push({
+        // 	name: name,
+        // 	sound: sound
+        // })
+    };
     GameUI.prototype.partAdded = function (partName, instance) {
         _super.prototype.partAdded.call(this, partName, instance);
     };
     GameUI.prototype.childrenCreated = function () {
         _super.prototype.childrenCreated.call(this);
-        var platform = window.platform;
-        if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
-            platform.openDataContext.postMessage({
-                command: 'loadRes'
-            });
-        }
         this.init();
     };
     GameUI.prototype.init = function () {
@@ -90,18 +95,17 @@ var GameUI = (function (_super) {
         this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
         this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
         this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
+        // 初始化成绩
         this.addscore.visible = false;
         this.score.text = '0';
         this.highScore.text = '' + this.main.highScore;
-        var sound = RES.getRes('8_mp3');
-        sound.play();
-        this.rank_pos = {
-            x: this.rank.x,
-            y: this.rank.y
-        };
-        this.left_bomb_times = 1;
+        // 播放背景音乐	
+        this.playMusic('8_mp3', 0);
+        // let sound: egret.Sound = RES.getRes('8_mp3');
+        // sound.play();
+        this.left_bomb_times = 0;
         this.bomb_times = 0;
-        this.left_change_times = 3;
+        this.left_change_times = 0;
         this.change_times = 0;
         this.left_relifes = 0;
         this.relifes = 0;
@@ -120,9 +124,6 @@ var GameUI = (function (_super) {
                 this.opdata[i].blockView.parent.removeChild(this.opdata[i].blockView);
             this.opdata[i].blockView = new BlockView(this.opdata[i].op, this.gz_width, this.fk_width, this.gameData.blocks[i]);
             this.opdata[i].op.addChild(this.opdata[i].blockView);
-            // this.opdata[i].op.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonOpClick, this);
-            // this.opdata[i].op.touchEnable = true;
-            // this.opdata[i].blockView.touchEnable = false;
         }
         this.checkOver();
     };
@@ -133,13 +134,15 @@ var GameUI = (function (_super) {
                 this.curdata = null;
                 this.curblockview = null;
                 if (this.gameData.blocks[i].canPut == false) {
-                    var sound_1 = RES.getRes("1_mp3");
-                    sound_1.play(0, 1);
+                    // let sound: egret.Sound = RES.getRes("1_mp3");
+                    // sound.play(0, 1);
+                    this.playMusic('1_mp3', 1);
                     break;
                 }
                 this.curdata = opdata;
-                var sound = RES.getRes('putup_mp3');
-                sound.play(0, 1);
+                // let sound: egret.Sound = RES.getRes('putup_mp3');
+                // sound.play(0, 1);
+                this.playMusic('putup_mp3', 1);
                 this.curblockview = opdata.blockView;
                 opdata.op.removeChild(opdata.blockView);
                 opdata.blockView.setState(myClear.Block_state.MOVING);
@@ -159,7 +162,7 @@ var GameUI = (function (_super) {
     GameUI.prototype.onTouchBegin = function (e) {
         if (this.curdata == null)
             return;
-        this.curblockview.y = e.stageY - this.y - 300;
+        this.curblockview.y = e.stageY - this.y - 350 - this.curblockview.height / 2;
         this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
         console.log('onBlockTouchBegin:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
     };
@@ -167,8 +170,8 @@ var GameUI = (function (_super) {
         if (this.curdata == null)
             return;
         this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
-        this.curblockview.y = e.stageY - this.y - 300;
-        console.log('onTouchMove:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
+        this.curblockview.y = e.stageY - this.y - 350 - this.curblockview.height / 2;
+        //console.log('onTouchMove:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
         var pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
         var canPutDown = false;
         var r = 0;
@@ -287,60 +290,14 @@ var GameUI = (function (_super) {
     };
     GameUI.prototype.onButtonReplayClick = function (e) {
         console.log('onButtonReplayClick');
+        var platform = window.platform;
+        if (platform && platform.shareAppMessage) {
+            platform.shareAppMessage();
+        }
     };
     GameUI.prototype.onButtonRankClick = function (e) {
-        console.log('onButtonRankClick');
-        var platform = window.platform;
-        var haveOpenData = false;
-        if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
-            haveOpenData = true;
-        }
-        if (!haveOpenData)
-            return;
-        // let sound: egret.Sound = RES.getRes("1_mp3");
-        // sound.play(0, 1);
-        if (this.rank_isdisplay) {
-            this.rank_bitmap.parent && this.rank_bitmap.parent.removeChild(this.rank_bitmap);
-            this.rankingListMask.parent && this.rankingListMask.parent.removeChild(this.rankingListMask);
-            this.rank_isdisplay = false;
-            platform.openDataContext.postMessage({
-                isDisplay: this.rank_isdisplay,
-                text: 'hello',
-                year: (new Date()).getFullYear(),
-                command: 'close'
-            });
-            this.topGroup.addChild(this.rank);
-            this.rank.x = this.rank_pos.x;
-            this.rank.y = this.rank_pos.y;
-        }
-        else {
-            //处理遮罩，避免开放数据域事件影响主域。
-            this.rankingListMask = new egret.Shape();
-            this.rankingListMask.graphics.beginFill(0x000000, 1);
-            this.rankingListMask.graphics.drawRect(0, 0, this.width, this.height);
-            this.rankingListMask.graphics.endFill();
-            this.rankingListMask.alpha = 0.5;
-            this.rankingListMask.touchEnabled = true;
-            this.addChild(this.rankingListMask);
-            //简单实现，打开这关闭使用一个按钮。
-            this.addChild(this.rank);
-            //主要示例代码开始
-            this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.width, 1344);
-            // this.rank_bitmap.x = 0;
-            // this.rank_bitmap.y = 0;
-            // this.rank_bitmap.width = this.width;
-            // this.rank_bitmap.height = this.height;
-            this.addChild(this.rank_bitmap);
-            //主域向子域发送自定义消息
-            platform.openDataContext.postMessage({
-                isDisplay: this.rank_isdisplay,
-                text: 'hello',
-                year: (new Date()).getFullYear(),
-                command: "open"
-            });
-            //主要示例代码结束            
-            this.rank_isdisplay = true;
-        }
+        var rank = new RankUI(this.main, this);
+        rank.onButtonRankClick(e);
     };
     GameUI.prototype.onButtonMusicClick = function (e) {
         console.log('onButtonMusicClick');
@@ -349,6 +306,14 @@ var GameUI = (function (_super) {
         console.log('onButtonChangeClick');
         if (this.change_times >= 3)
             return;
+        if (this.change_times + this.left_change_times == 0) {
+            var platform_1 = window.platform;
+            if (platform_1 && platform_1.shareAppMessage) {
+                platform_1.shareAppMessage();
+                this.left_change_times = 3;
+            }
+            return;
+        }
         this.initBlock();
         this.change_times++;
     };
@@ -360,7 +325,7 @@ var GameUI = (function (_super) {
         var color = myClear.Color_conf[colorId];
         var rows = block.length;
         var cols = block[0].length;
-        console.log('addtogrid:', x, y, rows, cols);
+        //console.log('addtogrid:', x, y, rows, cols);
         for (var i = 0; i < rows; i++) {
             for (var j = 0; j < cols; j++) {
                 if (block[i][j]) {
@@ -378,8 +343,9 @@ var GameUI = (function (_super) {
             }
         }
         this.score.text = '' + this.gameData.gameScore;
-        var sound = RES.getRes('putdown_mp3');
-        sound.play(0, 1);
+        // let sound: egret.Sound = RES.getRes('putdown_mp3');
+        // sound.play(0, 1);
+        this.playMusic('putdown_mp3', 1);
     };
     GameUI.prototype.checkClear = function () {
         // 清楚数据中的gz
@@ -401,8 +367,9 @@ var GameUI = (function (_super) {
             this.lastcleartime = tnow;
             var sound_res_name = this.cleartimes + '_mp3';
             console.log('sound', this.cleartimes, sound_res_name);
-            var sound = RES.getRes(sound_res_name);
-            sound.play(0, 1);
+            // let sound: egret.Sound = RES.getRes(sound_res_name);
+            // sound.play(0, 1);
+            this.playMusic(sound_res_name, 1);
         }
         // 如果没有可用的组合，则再次生产
         if (this.gameData.haveBlockToUse() == false) {
@@ -456,66 +423,48 @@ var GameUI = (function (_super) {
             }
         }
         if (overdata.over) {
+            this.main.score = this.gameData.gameScore;
             // 结束逻辑执行
             if (this.main.highScore < this.gameData.gameScore) {
                 this.main.highScore = this.gameData.gameScore;
                 this.main.saveScore();
-                var platform_1 = window.platform;
-                if (platform_1 && platform_1.openDataContext && platform_1.openDataContext.postMessage) {
-                    platform_1.openDataContext.postMessage({
+                var platform_2 = window.platform;
+                if (platform_2 && platform_2.openDataContext && platform_2.openDataContext.postMessage) {
+                    platform_2.openDataContext.postMessage({
                         command: 'save',
                         score: '' + this.main.highScore,
                     });
                 }
             }
             this.highScore.text = '' + this.main.highScore;
-            this.goOver().catch(function (e) {
-                console.log(e);
-            });
+            this.goOver();
         }
     };
     GameUI.prototype.goOver = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.loadOverResource()];
-                    case 1:
-                        _a.sent();
-                        this.main.setPage("over");
-                        return [2 /*return*/];
-                }
-            });
+        var _this = this;
+        var topY = this.topGroup.y - this.topGroup.height;
+        var opY = this.op.y + this.op.height;
+        egret.Tween.get(this.topGroup).to({ y: topY }, 500).call(function () {
+            console.log('top move ok');
         });
-    };
-    GameUI.prototype.loadOverResource = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var loadingView, e_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        if (this.resOverOK)
-                            return [2 /*return*/];
-                        this.resOverOK = true;
-                        loadingView = new LoadingUI();
-                        this.stage.addChild(loadingView);
-                        return [4 /*yield*/, RES.loadGroup("over", 0, loadingView)];
-                    case 1:
-                        _a.sent();
-                        this.stage.removeChild(loadingView);
-                        return [3 /*break*/, 3];
-                    case 2:
-                        e_1 = _a.sent();
-                        console.error(e_1);
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
-                }
-            });
+        egret.Tween.get(this.op).to({ y: opY }, 500).call(function () {
+            console.log('op move ok');
+        });
+        egret.Tween.get(this.game).to({ scaleX: 0, scaleY: 0 }, 500).call(function () {
+            _this.main.setPage("over");
         });
     };
     GameUI.prototype.onButtonBombClick = function (e) {
-        console.log('onButtonBombClick');
+        console.log('onButtonBombClick', this.bomb_times, this.left_bomb_times);
         if (this.bomb_times > 0) {
+            return;
+        }
+        if (this.left_bomb_times == 0) {
+            var platform_3 = window.platform;
+            if (platform_3 && platform_3.shareAppMessage) {
+                platform_3.shareAppMessage();
+                this.left_bomb_times = 1;
+            }
             return;
         }
         if (this.curblockview) {
@@ -530,10 +479,7 @@ var GameUI = (function (_super) {
         }
         // 创建阴影模型
         if (this.bombview == null) {
-            this.bombview = new egret.Shape();
-            this.bombview.graphics.beginFill(0x000000, 0.5);
-            this.bombview.graphics.drawRect(0, 0, this.gz_width * 3, this.gz_width * 3);
-            this.bombview.graphics.endFill();
+            this.bombview = ResTools.createBitmapByName("game_panel_1_png");
         }
         this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
         this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);
@@ -566,17 +512,26 @@ var GameUI = (function (_super) {
     };
     GameUI.prototype.onBombTouchEnd = function (e) {
         console.log('onBombTouchEnd');
+        var bomb_used = false;
         if (this.bomb_area.find) {
             var bomb_gzs = this.gameData.bomb(this.bomb_area);
             for (var i = 0; i < bomb_gzs.length; i++) {
                 this.clearGz(i, bomb_gzs[i]);
+                bomb_used = true;
             }
         }
-        if (this.bombview.parent)
+        if (this.bombview.parent) {
             this.bombview.parent.removeChild(this.bombview);
-        if (this.hammerview.parent)
+            this.bombview = null;
+        }
+        if (this.hammerview.parent) {
             this.hammerview.parent.removeChild(this.hammerview);
-        this.bomb_times++;
+            this.hammerview = null;
+        }
+        if (bomb_used) {
+            this.bomb_times++;
+            this.bomb.source = "game_nobomb_png";
+        }
         this.checkOver();
         this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
         this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);

@@ -270,7 +270,7 @@ namespace myClear {
 
             let blockId = this.blocks[id].blockId;
 
-            console.log('blockCanPutPoint:', r, c, blockId);
+            //console.log('blockCanPutPoint:', r, c, blockId);
 
             let block = myClear.Block_conf[blockId];
             let rows = block.length;

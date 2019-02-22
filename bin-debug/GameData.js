@@ -230,7 +230,7 @@ var myClear;
             if (this.blocks.length < id)
                 return false;
             var blockId = this.blocks[id].blockId;
-            console.log('blockCanPutPoint:', r, c, blockId);
+            //console.log('blockCanPutPoint:', r, c, blockId);
             var block = myClear.Block_conf[blockId];
             var rows = block.length;
             var cols = block[0].length;

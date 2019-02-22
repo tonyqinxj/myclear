@@ -1,10 +1,12 @@
 class GameUI extends eui.Component implements eui.UIComponent {
 	private main: Main;
 
+	// 以下对应exml中的控件
 	private music: eui.Button;
 	private replay: eui.Button;
 	private rank: eui.Button;
-	private bomb: eui.Button;
+	private bomb: eui.Image;
+
 	private change: eui.Button;
 	private op1: eui.Group;
 	private op2: eui.Group;
@@ -15,33 +17,27 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	private game: eui.Group;
 	private topGroup: eui.Group;
+	private op: eui.Group;
 
+	// 以下是游戏逻辑数据	
+	private gz_width: number;	// 格子的大小
+	private fk_width: number;	// 方块的大小
 
-	private gz_width: number;
-	private fk_width: number;
+	private gameData: myClear.GameData;	// 游戏数据
+	private opdata: any;	// 操作面板
 
-	private gameData: myClear.GameData;
-	private opdata: any;
-	private curdata: any;
+	private curdata: any;	// 当前操作的数据存储
 	private curblockview: BlockView;	// 当前正在操作的组合格子
 
 	private hammerview: egret.Bitmap; // 锤子
-	private bombview: egret.Shape; // 用于bomb的区域大小
+	private bombview: egret.Bitmap; // 用于bomb的区域大小
 
 	private shadow: Array<any>; // 移动过程中的阴影 [gz]
 	private shadow_pos: any; // {r,c}
 
-	private resOverOK: boolean;
-
 	private lastcleartime: number; // 上次消除时间
 	private cleartimes: number; // 连击次数
 
-
-	// 排行榜代码
-	private rank_bitmap: egret.Bitmap;
-	private rank_isdisplay = false;
-	private rankingListMask: egret.Shape;
-	private rank_pos: any;
 
 
 	// 换block
@@ -57,6 +53,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private left_relifes: number; // 剩余的复活次数
 	private relifes: number; // 复活过的次数
 
+	// 音效
+	private sounds = [];
+
 	public constructor(main: Main) {
 		super();
 		this.main = main;
@@ -66,35 +65,76 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.curdata = null;
 		this.curblockview = null;
 
-		this.resOverOK = false;
-
 		this.gameData = new myClear.GameData();
 
+	}
 
+	protected playMusic(name: string, times: number): void {
+
+		console.log('play:', name, times);
+		let res_name = 'resource/sounds/' + name.match(/(.+)_mp3/)[1] + '.mp3';
+
+		let platform: Platform = window.platform;
+		platform.playMusic(res_name, times);
+		return;
+
+		// 方法一
+		// for (let i = 0; i < this.sounds.length; i++) {
+		// 	let sound = this.sounds[i];
+		// 	if (sound.name == name) {
+		// 		sound.sound.play(0, times);
+		// 		return;
+		// 	}
+		// }
+
+
+		// var loader: egret.URLLoader = new egret.URLLoader();
+		// loader.addEventListener(egret.Event.COMPLETE, function loadOver(event: egret.Event) {
+		// 	var sound: egret.Sound = loader.data;
+		// 	sound.play(0, times);
+		// 	this.sounds.push({
+		// 		name: name,
+		// 		sound: sound
+		// 	})
+		// }, this);
+		// loader.dataFormat = egret.URLLoaderDataFormat.SOUND;
+		// loader.load(new egret.URLRequest(res_name));
+
+
+		// 方法二
+
+		// let sound: egret.Sound = new egret.Sound();
+		// sound.addEventListener(egret.Event.COMPLETE, (event: egret.Event) => {
+		// 	sound.play(0, times);
+		// 	this.sounds.push({
+		// 		name: name,
+		// 		sound: sound
+		// 	})
+		// }, this);
+		// sound.addEventListener(egret.IOErrorEvent.IO_ERROR, (event: egret.IOErrorEvent) => {
+		// 	console.log("loaded error!");
+		// }, this);
+		// sound.load(res_name);
+
+
+		// 方法三
+		//let sound: egret.Sound = RES.getRes(name);
+		//sound.play(0, times);
+
+		// this.sounds.push({
+		// 	name: name,
+		// 	sound: sound
+		// })
 	}
 
 	protected partAdded(partName: string, instance: any): void {
 		super.partAdded(partName, instance);
 	}
 
-
 	protected childrenCreated(): void {
 		super.childrenCreated();
-
-		const platform: any = window.platform;
-		if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
-			platform.openDataContext.postMessage({
-				command: 'loadRes'
-			});
-
-		}
-
 		this.init();
-
-
 	}
-
-
 
 	private init(): void {
 		this.lastcleartime = 0;
@@ -123,25 +163,20 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
 		this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
 
-
+		// 初始化成绩
 		this.addscore.visible = false;
 		this.score.text = '0';
 		this.highScore.text = '' + this.main.highScore;
 
-		let sound: egret.Sound = RES.getRes('8_mp3');
-		sound.play();
+		// 播放背景音乐	
+		this.playMusic('8_mp3', 0);
+		// let sound: egret.Sound = RES.getRes('8_mp3');
+		// sound.play();
 
-
-		this.rank_pos = {
-			x: this.rank.x,
-			y: this.rank.y
-		};
-
-
-		this.left_bomb_times = 1;
+		this.left_bomb_times = 0;
 		this.bomb_times = 0;
 
-		this.left_change_times = 3;
+		this.left_change_times = 0;
 		this.change_times = 0;
 
 		this.left_relifes = 0;
@@ -158,23 +193,16 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		// 对block的数据进行初始化
 		this.gameData.initBlock();
 
-
 		// 初始化op视图
 		for (let i = 0; i < 3; i++) {
-
 			if (this.opdata[i].blockView && this.opdata[i].blockView.parent) this.opdata[i].blockView.parent.removeChild(this.opdata[i].blockView);
 			this.opdata[i].blockView = new BlockView(this.opdata[i].op, this.gz_width, this.fk_width, this.gameData.blocks[i]);
 			this.opdata[i].op.addChild(this.opdata[i].blockView);
-			// this.opdata[i].op.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonOpClick, this);
-			// this.opdata[i].op.touchEnable = true;
-			// this.opdata[i].blockView.touchEnable = false;
 		}
 
 		this.checkOver();
 
 	}
-
-
 
 
 	protected onButtonOpClick(e: egret.TouchEvent, id: number): void {
@@ -187,14 +215,16 @@ class GameUI extends eui.Component implements eui.UIComponent {
 				this.curblockview = null;
 
 				if (this.gameData.blocks[i].canPut == false) {
-					let sound: egret.Sound = RES.getRes("1_mp3");
-					sound.play(0, 1);
+					// let sound: egret.Sound = RES.getRes("1_mp3");
+					// sound.play(0, 1);
+					this.playMusic('1_mp3', 1);
 					break;
 				}
 
 				this.curdata = opdata;
-				let sound: egret.Sound = RES.getRes('putup_mp3');
-				sound.play(0, 1);
+				// let sound: egret.Sound = RES.getRes('putup_mp3');
+				// sound.play(0, 1);
+				this.playMusic('putup_mp3', 1);
 
 
 				this.curblockview = opdata.blockView;
@@ -212,17 +242,14 @@ class GameUI extends eui.Component implements eui.UIComponent {
 				this.addEventListener(egret.TouchEvent.TOUCH_CANCEL, this.onTouchCancel, this);
 				this.addEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.onTouchReleaeOutside, this);
 				break;
-
 			}
 		}
-
-
 	}
 
 	private onTouchBegin(e: egret.TouchEvent): void {
 		if (this.curdata == null) return;
 
-		this.curblockview.y = e.stageY - this.y - 300;
+		this.curblockview.y = e.stageY - this.y - 350 - this.curblockview.height / 2;
 		this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
 		console.log('onBlockTouchBegin:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
 
@@ -233,11 +260,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		if (this.curdata == null) return;
 
-
 		this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
-		this.curblockview.y = e.stageY - this.y - 300;
+		this.curblockview.y = e.stageY - this.y - 350 - this.curblockview.height / 2;
 
-		console.log('onTouchMove:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
+		//console.log('onTouchMove:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
 
 		let pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
 
@@ -349,8 +375,6 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 			this.curblockview = null;
 			//this.curblockview.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onBlockTouchBegin1, this);
-
-
 		}
 
 
@@ -397,91 +421,37 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	protected onButtonReplayClick(e: egret.TouchEvent): void {
 		console.log('onButtonReplayClick');
 		let platform: any = window.platform;
-		if(platform && platform.shareAppMessage){
+		if (platform && platform.shareAppMessage) {
 			platform.shareAppMessage();
 		}
 	}
 
-
 	protected onButtonRankClick(e: egret.TouchEvent): void {
-		console.log('onButtonRankClick');
-		let platform: any = window.platform;
-		let haveOpenData = false;
-
-		if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
-			haveOpenData = true;
-		}
-
-		if (!haveOpenData) return;
-		// let sound: egret.Sound = RES.getRes("1_mp3");
-		// sound.play(0, 1);
-
-		if (this.rank_isdisplay) {
-			this.rank_bitmap.parent && this.rank_bitmap.parent.removeChild(this.rank_bitmap);
-			this.rankingListMask.parent && this.rankingListMask.parent.removeChild(this.rankingListMask);
-			this.rank_isdisplay = false;
-
-			platform.openDataContext.postMessage({
-				isDisplay: this.rank_isdisplay,
-				text: 'hello',
-				year: (new Date()).getFullYear(),
-				command: 'close'
-			});
-
-
-			this.topGroup.addChild(this.rank);
-			this.rank.x = this.rank_pos.x;
-			this.rank.y = this.rank_pos.y;
-		} else {
-			//处理遮罩，避免开放数据域事件影响主域。
-			this.rankingListMask = new egret.Shape();
-			this.rankingListMask.graphics.beginFill(0x000000, 1);
-			this.rankingListMask.graphics.drawRect(0, 0, this.width, this.height);
-			this.rankingListMask.graphics.endFill();
-			this.rankingListMask.alpha = 0.5;
-			this.rankingListMask.touchEnabled = true;
-			this.addChild(this.rankingListMask);
-
-			//简单实现，打开这关闭使用一个按钮。
-			this.addChild(this.rank);
-			//主要示例代码开始
-
-			this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.width, 1344);
-			// this.rank_bitmap.x = 0;
-			// this.rank_bitmap.y = 0;
-			// this.rank_bitmap.width = this.width;
-			// this.rank_bitmap.height = this.height;
-
-			this.addChild(this.rank_bitmap);
-			//主域向子域发送自定义消息
-			platform.openDataContext.postMessage({
-				isDisplay: this.rank_isdisplay,
-				text: 'hello',
-				year: (new Date()).getFullYear(),
-				command: "open"
-			});
-			//主要示例代码结束            
-			this.rank_isdisplay = true;
-		}
-
+		let rank = new RankUI(this.main, this);
+		rank.onButtonRankClick(e);
 	}
 
 	protected onButtonMusicClick(e: egret.TouchEvent): void {
 		console.log('onButtonMusicClick');
 	}
 
-
-
-
 	protected onButtonChangeClick(e: egret.TouchEvent): void {
 		console.log('onButtonChangeClick');
-		if(this.change_times >=3 ) return;
-		
+		if (this.change_times >= 3) return;
+
+		if (this.change_times + this.left_change_times == 0) {
+			let platform: any = window.platform;
+			if (platform && platform.shareAppMessage) {
+				platform.shareAppMessage();
+				this.left_change_times = 3;
+			}
+
+			return;
+		}
+
 		this.initBlock();
 		this.change_times++;
 	}
-
-
 
 	private blockAddToGrid(x: number, y: number, blockInfo: any): void {
 		// blockInfo { blockId, colorId}
@@ -495,7 +465,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		let rows = block.length;
 		let cols = block[0].length;
 
-		console.log('addtogrid:', x, y, rows, cols);
+		//console.log('addtogrid:', x, y, rows, cols);
 
 		for (let i = 0; i < rows; i++) {
 			for (let j = 0; j < cols; j++) {
@@ -522,8 +492,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		this.score.text = '' + this.gameData.gameScore;
 
-		let sound: egret.Sound = RES.getRes('putdown_mp3');
-		sound.play(0, 1);
+		// let sound: egret.Sound = RES.getRes('putdown_mp3');
+		// sound.play(0, 1);
+
+		this.playMusic('putdown_mp3', 1);
 	}
 
 	private checkClear() {
@@ -550,8 +522,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			this.lastcleartime = tnow;
 			let sound_res_name = this.cleartimes + '_mp3';
 			console.log('sound', this.cleartimes, sound_res_name);
-			let sound: egret.Sound = RES.getRes(sound_res_name);
-			sound.play(0, 1);
+			// let sound: egret.Sound = RES.getRes(sound_res_name);
+			// sound.play(0, 1);
+
+			this.playMusic(sound_res_name, 1);
 		}
 
 		// 如果没有可用的组合，则再次生产
@@ -615,6 +589,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 
 		if (overdata.over) {
+			this.main.score = this.gameData.gameScore;
 			// 结束逻辑执行
 			if (this.main.highScore < this.gameData.gameScore) {
 				this.main.highScore = this.gameData.gameScore;
@@ -631,43 +606,46 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 			}
 			this.highScore.text = '' + this.main.highScore;
-			this.goOver().catch(e => {
-				console.log(e);
-			})
+			this.goOver();
 		}
 	}
 
 
-	private async goOver() {
-		await this.loadOverResource()
-		this.main.setPage("over");
-		// const result = await RES.getResAsync("description_json")
-		// this.startAnimation(result);
-		// await platform.login();
-		// const userInfo = await platform.getUserInfo();
-		// console.log(userInfo);
+	private goOver() {
 
-	}
+		let topY = this.topGroup.y-this.topGroup.height;
 
-	private async loadOverResource() {
-		try {
-			if (this.resOverOK) return;
+		let opY = this.op.y+this.op.height;
 
-			this.resOverOK = true;
 
-			const loadingView = new LoadingUI();
-			this.stage.addChild(loadingView);
-			await RES.loadGroup("over", 0, loadingView);
-			this.stage.removeChild(loadingView);
-		}
-		catch (e) {
-			console.error(e);
-		}
+		egret.Tween.get(this.topGroup).to({y:topY}, 500).call(()=>{
+			console.log('top move ok');
+		});
+
+		
+		egret.Tween.get(this.op).to({y:opY}, 500).call(()=>{
+			console.log('op move ok');
+		});
+		
+
+		egret.Tween.get(this.game).to({scaleX:0,scaleY:0}, 500).call(()=>{
+			this.main.setPage("over");
+		})
+		
 	}
 
 	protected onButtonBombClick(e: egret.TouchEvent): void {
-		console.log('onButtonBombClick');
-		if(this.bomb_times>0){
+		console.log('onButtonBombClick', this.bomb_times, this.left_bomb_times);
+		if (this.bomb_times > 0) {
+			return;
+		}
+
+		if (this.left_bomb_times == 0) {
+			let platform: any = window.platform;
+			if (platform && platform.shareAppMessage) {
+				platform.shareAppMessage();
+				this.left_bomb_times = 1;
+			}
 
 			return;
 		}
@@ -686,13 +664,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		// 创建阴影模型
 		if (this.bombview == null) {
-			this.bombview = new egret.Shape();
-			this.bombview.graphics.beginFill(0x000000, 0.5);
-			this.bombview.graphics.drawRect(0, 0, this.gz_width * 3, this.gz_width * 3);
-			this.bombview.graphics.endFill();
+			this.bombview = ResTools.createBitmapByName("game_panel_1_png");
 		}
-
-
 
 		this.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
 		this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);
@@ -730,20 +703,34 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private onBombTouchEnd(e: egret.TouchEvent): void {
 		console.log('onBombTouchEnd');
 
+		let bomb_used = false;
 		if (this.bomb_area.find) {
 			let bomb_gzs = this.gameData.bomb(this.bomb_area);
 			for (let i = 0; i < bomb_gzs.length; i++) {
 				this.clearGz(i, bomb_gzs[i]);
+
+				bomb_used = true;
 			}
 		}
 
-		if (this.bombview.parent) this.bombview.parent.removeChild(this.bombview);
-		if (this.hammerview.parent) this.hammerview.parent.removeChild(this.hammerview);
-		this.bomb_times++;
+		if (this.bombview.parent) {
+			this.bombview.parent.removeChild(this.bombview);
+			this.bombview = null;
+		}
+
+		if (this.hammerview.parent) {
+			this.hammerview.parent.removeChild(this.hammerview);
+			this.hammerview = null;
+		}
+
+		if (bomb_used) {
+			this.bomb_times++;
+
+			this.bomb.source = "game_nobomb_png";
+		}
+
 
 		this.checkOver();
-
-
 
 		this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
 		this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);

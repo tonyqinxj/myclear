@@ -57,8 +57,18 @@ var StartUI = (function (_super) {
     StartUI.prototype.childrenCreated = function () {
         _super.prototype.childrenCreated.call(this);
         this.init();
+        // test font
+        //RES.getResByUrl("resource/fonts/mynumber.fnt", this.onFontComplete, this, RES.ResourceItem.TYPE_FONT);
     };
+    // private _bitmapText:egret.BitmapText;
+    // private onFontComplete(font:egret.BitmapFont):void{
+    // 	this._bitmapText = new egret.BitmapText();
+    // 	this._bitmapText.font = font;
+    // 	this._bitmapText.text = '123,444';
+    // 	this.addChild(this._bitmapText);
+    // }
     StartUI.prototype.init = function () {
+        egret.Tween.get(this.tip, { loop: true }).to({ x: 202 }, 300).to({ x: 222 }, 300);
         this.start.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonStartClick, this);
     };
     StartUI.prototype.onButtonStartClick = function (e) {
@@ -89,6 +99,8 @@ var StartUI = (function (_super) {
                         if (this.resOK)
                             return [2 /*return*/];
                         this.resOK = true;
+                        this.removeChild(this.start_bg);
+                        this.removeChild(this.start);
                         loadingView = new LoadingUI();
                         this.stage.addChild(loadingView);
                         return [4 /*yield*/, RES.loadGroup("game", 0, loadingView)];

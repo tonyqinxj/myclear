@@ -15,7 +15,8 @@
 		"eui.ItemRenderer": "resource/eui_skins/ItemRendererSkin.exml",
 		"StartUI": "resource/eui_skins/StartUI.exml",
 		"GameUI": "resource/eui_skins/GameUI.exml",
-		"OverUI": "resource/eui_skins/OverUI.exml"
+		"OverUI": "resource/eui_skins/OverUI.exml",
+		"RankUI": "resource/eui_skins/RankUI.exml"
 	},
 	"autoGenerateExmlsList": true,
 	"exmls": [

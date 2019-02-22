@@ -23,11 +23,35 @@ var OverUI = (function (_super) {
         this.init();
     };
     OverUI.prototype.init = function () {
-        this.restart.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onStartClick, this);
+        this.score.text = '' + this.main.score;
+        this.highscore.text = '历史最高分：' + this.main.highScore;
+        egret.Tween.get(this.tip, { loop: true })
+            .to({ x: 202 }, 300)
+            .to({ x: 222 }, 300);
+        var platform = window.platform;
+        if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
+            this.rank_bitmap = platform.openDataContext.createDisplayObject(null, 750, 1344);
+            this.addChild(this.rank_bitmap);
+            platform.openDataContext.postMessage({
+                command: "myscore",
+                openid: this.main.openid,
+                highscore: this.main.highScore,
+            });
+        }
+        this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onStartClick, this);
+        this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onRankClick, this);
     };
     OverUI.prototype.onStartClick = function (e) {
         console.log('onStartClick');
         this.main.setPage('game');
+    };
+    OverUI.prototype.onShareClick = function (e) {
+        console.log('onShareClick');
+    };
+    OverUI.prototype.onRankClick = function (e) {
+        console.log('onRankClick');
+        var rank = new RankUI(this.main, this);
+        rank.onButtonRankClick(e);
     };
     return OverUI;
 }(eui.Component));

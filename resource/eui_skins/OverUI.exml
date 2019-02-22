@@ -1,15 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<e:Skin class="OverUISkin" width="750" height="1624" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing" >
+<e:Skin class="OverUISkin" width="750" height="1624" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing"  >
 	<w:Config id="168d6908789" ></w:Config>
-	<e:Image id="bg" width="750" x="0" height="1624" source="over_bg_png" y="0"/>
-	<e:Group id="overScoreGroup" width="700" height="784" x="23.67" y="173.33" anchorOffsetX="0" anchorOffsetY="0">
-		<e:Button id="restart" label="" top="564" left="46" width="286" height="96">
+	<e:Image id="bg" width="750" x="0" height="1624" y="0" source="game_bg_png"/>
+	<e:Group width="705" height="683" horizontalCenter="0" top="137">
+		<e:Image id="scorePl" top="0" bottom="0" x="0" source="game_panel_png" scale9Grid="10,10,10,10"/>
+		<e:Image id="rankImg" source="game_panel_1_png" top="296" bottom="213" left="46" right="46" scale9Grid="10,10,10,10"/>
+		<e:Button id="replay" label="" width="285" height="96" left="46" bottom="23" >
 			<e:skinName>
 				<e:Skin states="up,down,disabled">
-				<e:Image width="100%" height="100%" source="over_restart_png"/>
+				<e:Image width="100%" height="100%" source="over_replay_png"/>
+				<e:Label id="labelDisplay" horizontalCenter="0" verticalCenter="0"/>
+				</e:Skin>
+			</e:skinName>
+		</e:Button>
+		<e:Button id="share" label="" width="285" height="96" bottom="23" right="46">
+			<e:skinName>
+				<e:Skin states="up,down,disabled">
+				<e:Image width="100%" height="100%" source="over_share_png"/>
+				<e:Label id="labelDisplay" horizontalCenter="0" verticalCenter="0"/>
+				</e:Skin>
+			</e:skinName>
+		</e:Button>
+
+
+
+		<e:Image id="scoreImg" width="40" height="41" x="257" y="38" source="game_score_png"/>
+		<e:Label id="scoreTxt" text="本局得分" x="306" y="41" size="36" textColor="0xFDE305"/>
+		<e:Label id="score" text="90020" horizontalCenter="0" textAlign="center" size="90" bold="true" top="122"/>
+		<e:Image id="highImg" width="35" height="41" x="234" y="240" source="game_high_score_png"/>
+		<e:Label id="highscore" text="历史最高分：7888" x="283" y="248" size="24" bold="true"/>
+		<e:Group id="rankPl" top="296" bottom="213" left="46" right="46"/>
+		<e:Button id="rank" label="" x="278" y="499">
+			<e:skinName>
+				<e:Skin states="up,down,disabled">
+				<e:Image width="100%" height="100%" source="over_friend_rank_png"/>
 				<e:Label id="labelDisplay" horizontalCenter="0" verticalCenter="0"/>
 				</e:Skin>
 			</e:skinName>
 		</e:Button>
 	</e:Group>
+	<e:Label text="猜你喜欢" x="317" y="834" textColor="0xFFFFFF" alpha="0.5"/>
+	<e:Group id="mylove" width="705" height="202" x="22" y="874">
+		<e:Image left="0" top="0" right="0" bottom="0" source="game_panel_png"/>
+	</e:Group>
+	<e:Image id="tip" x="222" y="28" source="start_tip_png"/>
+
 </e:Skin>

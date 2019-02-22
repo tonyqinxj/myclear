@@ -1,31 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (c) 2014-present, Egret Technology.
-//  All rights reserved.
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//     * Redistributions of source code must retain the above copyright
-//       notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above copyright
-//       notice, this list of conditions and the following disclaimer in the
-//       documentation and/or other materials provided with the distribution.
-//     * Neither the name of the Egret nor the
-//       names of its contributors may be used to endorse or promote products
-//       derived from this software without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY EGRET AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
-//  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-//  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL EGRET AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;LOSS OF USE, DATA,
-//  OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-//  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-//  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//////////////////////////////////////////////////////////////////////////////////////
 var __reflect = (this && this.__reflect) || function (p, c, t) {
     p.__class__ = c, t ? t.push(c) : t = [c], p.__types__ = p.__types__ ? t.concat(p.__types__) : t;
 };
@@ -91,7 +63,9 @@ var Main = (function (_super) {
     Main.prototype.createChildren = function () {
         _super.prototype.createChildren.call(this);
         this.curPage = null;
+        this.score = 0;
         this.highScore = this.getScore();
+        this.openid = '';
         egret.lifecycle.addLifecycleListener(function (context) {
             // custom lifecycle plugin
         });
@@ -112,19 +86,27 @@ var Main = (function (_super) {
     };
     Main.prototype.goStart = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var loginInfo, res, data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.loadResource()];
                     case 1:
                         _a.sent();
                         this.setPage("start");
-                        // const result = await RES.getResAsync("description_json")
-                        // this.startAnimation(result);
                         return [4 /*yield*/, platform.login()];
                     case 2:
-                        // const result = await RES.getResAsync("description_json")
-                        // this.startAnimation(result);
-                        _a.sent();
+                        loginInfo = _a.sent();
+                        console.log('loginInfo:', loginInfo, loginInfo.code);
+                        return [4 /*yield*/, HttpTools.httpPost("https://www.nskqs.com/getOpenId", { code: loginInfo.code })];
+                    case 3:
+                        res = _a.sent();
+                        console.log('res:', res);
+                        if (res.errcode == 0) {
+                            data = JSON.parse(res.data);
+                            this.openid = data.openid;
+                            egret.localStorage.setItem('myuserinfo', data);
+                            console.log('data:', data);
+                        }
                         return [2 /*return*/];
                 }
             });
@@ -132,25 +114,26 @@ var Main = (function (_super) {
     };
     Main.prototype.loadResource = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var loadingView, e_1;
+            var e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 4, , 5]);
-                        loadingView = new LoadingUI();
-                        this.stage.addChild(loadingView);
+                        //const loadingView = new LoadingUI();
+                        //this.stage.addChild(loadingView);
                         //await RES.loadConfig("default.res.json", "https://prizedraw.myxianxiaobao.com/resource");
                         return [4 /*yield*/, RES.loadConfig("default.res.json", "/resource")];
                     case 1:
+                        //const loadingView = new LoadingUI();
+                        //this.stage.addChild(loadingView);
                         //await RES.loadConfig("default.res.json", "https://prizedraw.myxianxiaobao.com/resource");
                         _a.sent();
                         return [4 /*yield*/, this.loadTheme()];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, RES.loadGroup("start", 0, loadingView)];
+                        return [4 /*yield*/, RES.loadGroup("start")];
                     case 3:
                         _a.sent();
-                        this.stage.removeChild(loadingView);
                         return [3 /*break*/, 5];
                     case 4:
                         e_1 = _a.sent();
@@ -164,8 +147,6 @@ var Main = (function (_super) {
     Main.prototype.loadTheme = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            // load skin theme configuration file, you can manually modify the file. And replace the default skin.
-            //加载皮肤主题配置文件,可以手动修改这个文件。替换默认皮肤。
             var theme = new eui.Theme("resource/default.thm.json", _this.stage);
             theme.addEventListener(eui.UIEvent.COMPLETE, function () {
                 resolve();
@@ -178,6 +159,16 @@ var Main = (function (_super) {
             this.removeChild(this.curPage);
     };
     Main.prototype.setPage = function (page) {
+        // if(page == "over"){
+        //     let oldPage = this.curPage;
+        //     this.curPage = new OverUI(this);
+        //     egret.Tween.get(oldPage).to({x:750}, 1000)
+        //     .call(()=>{
+        //         this.removeChild(oldPage);
+        //         this.addChild(this.curPage);
+        //     })
+        //     return;
+        // }
         this.clearCurScene();
         switch (page) {
             case "start":
@@ -193,71 +184,6 @@ var Main = (function (_super) {
                 return;
         }
         this.addChild(this.curPage);
-    };
-    // /**
-    //  * 创建场景界面
-    //  * Create scene interface
-    //  */
-    // protected createGameScene1(): void {
-    //     let sky = this.createBitmapByName("bg_jpg");
-    //     this.addChild(sky);
-    //     let stageW = this.stage.stageWidth;
-    //     let stageH = this.stage.stageHeight;
-    //     sky.width = stageW;
-    //     sky.height = stageH;
-    //     let topMask = new egret.Shape();
-    //     topMask.graphics.beginFill(0x000000, 0.5);
-    //     topMask.graphics.drawRect(0, 0, stageW, 172);
-    //     topMask.graphics.endFill();
-    //     topMask.y = 33;
-    //     this.addChild(topMask);
-    //     let icon: egret.Bitmap = this.createBitmapByName("egret_icon_png");
-    //     this.addChild(icon);
-    //     icon.x = 26;
-    //     icon.y = 33;
-    //     let line = new egret.Shape();
-    //     line.graphics.lineStyle(2, 0xffffff);
-    //     line.graphics.moveTo(0, 0);
-    //     line.graphics.lineTo(0, 117);
-    //     line.graphics.endFill();
-    //     line.x = 172;
-    //     line.y = 61;
-    //     this.addChild(line);
-    //     let colorLabel = new egret.TextField();
-    //     colorLabel.textColor = 0xffffff;
-    //     colorLabel.width = stageW - 172;
-    //     colorLabel.textAlign = "center";
-    //     colorLabel.text = "Hello Egret";
-    //     colorLabel.size = 24;
-    //     colorLabel.x = 172;
-    //     colorLabel.y = 80;
-    //     this.addChild(colorLabel);
-    //     let textfield = new egret.TextField();
-    //     this.addChild(textfield);
-    //     textfield.alpha = 0;
-    //     textfield.width = stageW - 172;
-    //     textfield.textAlign = egret.HorizontalAlign.CENTER;
-    //     textfield.size = 24;
-    //     textfield.textColor = 0xffffff;
-    //     textfield.x = 172;
-    //     textfield.y = 135;
-    //     this.textfield = textfield;
-    //     let button = new eui.Button();
-    //     button.label = "Click!";
-    //     button.horizontalCenter = 0;
-    //     button.verticalCenter = 0;
-    //     this.addChild(button);
-    //     button.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonClick, this);
-    // }
-    /**
-     * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
-     * Create a Bitmap object according to name keyword.As for the property of name please refer to the configuration file of resources/resource.json.
-     */
-    Main.prototype.createBitmapByName = function (name) {
-        var result = new egret.Bitmap();
-        var texture = RES.getRes(name);
-        result.texture = texture;
-        return result;
     };
     return Main;
 }(eui.UILayer));
