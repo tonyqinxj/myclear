@@ -16,8 +16,11 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private highScore: eui.Label;
 
 	private game: eui.Group;
+	private gameGroup: eui.Group;
 	private topGroup: eui.Group;
 	private op: eui.Group;
+
+	private changeNum: eui.Label;
 
 	// 以下是游戏逻辑数据	
 	private gz_width: number;	// 格子的大小
@@ -71,6 +74,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	protected playMusic(name: string, times: number): void {
 
+		//		ResTools.playMusic(name, times);
 		console.log('play:', name, times);
 		let res_name = 'resource/sounds/' + name.match(/(.+)_mp3/)[1] + '.mp3';
 
@@ -129,10 +133,14 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	protected partAdded(partName: string, instance: any): void {
 		super.partAdded(partName, instance);
+
+		console.log('gameui pardadded...');
+
 	}
 
 	protected childrenCreated(): void {
 		super.childrenCreated();
+		console.log('gameui childrenCreated...');
 		this.init();
 	}
 
@@ -151,17 +159,37 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		this.gameData.initGrid();
 
-		this.initBlock();
+		let oldtopy = this.topGroup.y;
+		let oldgamey = this.gameGroup.y;
+		let oldopy = this.op.y;
 
-		this.music.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonMusicClick, this);
-		this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonReplayClick, this);
-		this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonRankClick, this);
-		this.bomb.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonBombClick, this);
-		this.change.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonChangeClick, this);
+		this.topGroup.y -= 1624;
+		this.gameGroup.y -= 1624;
+		this.op.y -= 1624;
 
-		this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
-		this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
-		this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
+		console.log('pos:', oldtopy, oldgamey, oldopy);
+		console.log('pos 2:', this.topGroup.y, this.gameGroup.y, this.op.y);
+
+		egret.Tween.get(this.topGroup).to({ y: oldtopy }, 400).to({ y: oldtopy - 50 }, 50).to({ y: oldtopy }, 100);
+		egret.Tween.get(this.gameGroup).to({ y: oldgamey }, 400).to({ y: oldgamey - 50 }, 50).to({ y: oldgamey }, 100);
+		egret.Tween.get(this.op).to({ y: oldopy }, 400).to({ y: oldopy - 50 }, 50).to({ y: oldopy }, 100)
+			.call(() => {
+
+				console.log('pos 3:', this.topGroup.y, this.gameGroup.y, this.op.y);
+				this.initBlock();
+
+				this.music.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonMusicClick, this);
+				this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonReplayClick, this);
+				this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonRankClick, this);
+				this.bomb.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonBombClick, this);
+				this.change.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonChangeClick, this);
+
+				this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
+				this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
+				this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
+			});
+
+
 
 		// 初始化成绩
 		this.addscore.visible = false;
@@ -170,6 +198,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		// 播放背景音乐	
 		this.playMusic('8_mp3', 0);
+
+		this.playMusic('bgstart_mp3', 1);
 		// let sound: egret.Sound = RES.getRes('8_mp3');
 		// sound.play();
 
@@ -249,8 +279,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private onTouchBegin(e: egret.TouchEvent): void {
 		if (this.curdata == null) return;
 
-		this.curblockview.y = e.stageY - this.y - 350 - this.curblockview.height / 2;
 		this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
+		this.curblockview.y = e.stageY - this.y - 150 - this.curblockview.height;
 		console.log('onBlockTouchBegin:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
 
 
@@ -261,11 +291,16 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		if (this.curdata == null) return;
 
 		this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
-		this.curblockview.y = e.stageY - this.y - 350 - this.curblockview.height / 2;
+		this.curblockview.y = e.stageY - this.y - 150 - this.curblockview.height;
 
 		//console.log('onTouchMove:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
 
-		let pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
+		let pos = this.gameData.getPos(
+			this.curblockview.x + this.gz_width / 2 - this.gameGroup.x + this.gameGroup.width / 2 - this.game.x,
+			this.curblockview.y + this.gz_width / 2 - this.gameGroup.y + this.gameGroup.height / 2 - this.game.y
+		);
+
+		console.log('move pos:', pos);
 
 		let canPutDown = false;
 		let r = 0;
@@ -340,7 +375,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 
 		// 点的转换
-		let pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
+		let pos = this.gameData.getPos(
+			this.curblockview.x + this.gz_width / 2 - this.gameGroup.x + this.gameGroup.width / 2 - this.game.x,
+			this.curblockview.y + this.gz_width / 2 - this.gameGroup.y + this.gameGroup.height / 2 - this.game.y);
 		let canPutDown = false;
 		let r = 0;
 		let c = 0;
@@ -444,6 +481,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			if (platform && platform.shareAppMessage) {
 				platform.shareAppMessage();
 				this.left_change_times = 3;
+
+				this.changeNum.text = '3/3';
 			}
 
 			return;
@@ -451,6 +490,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		this.initBlock();
 		this.change_times++;
+		this.left_change_times--;
+
+		this.changeNum.text = this.left_change_times + '/3';
 	}
 
 	private blockAddToGrid(x: number, y: number, blockInfo: any): void {
@@ -595,16 +637,16 @@ class GameUI extends eui.Component implements eui.UIComponent {
 				this.main.highScore = this.gameData.gameScore;
 
 				this.main.saveScore();
-
-				const platform: any = window.platform;
-				if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
-					platform.openDataContext.postMessage({
-						command: 'save',
-						score: '' + this.main.highScore,
-					});
-				}
-
 			}
+
+			const platform: any = window.platform;
+			if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
+				platform.openDataContext.postMessage({
+					command: 'save',
+					score: '' + this.main.highScore,
+				});
+			}
+
 			this.highScore.text = '' + this.main.highScore;
 			this.goOver();
 		}
@@ -613,28 +655,32 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	private goOver() {
 
-		let topY = this.topGroup.y-this.topGroup.height;
+		let topY = this.topGroup.y - this.topGroup.height;
 
-		let opY = this.op.y+this.op.height;
+		let opY = this.op.y + this.op.height;
 
 
-		egret.Tween.get(this.topGroup).to({y:topY}, 500).call(()=>{
+		this.playMusic('10_mp3', 1);
+
+		egret.Tween.get(this.topGroup).to({ y: topY }, 300).call(() => {
 			console.log('top move ok');
 		});
 
-		
-		egret.Tween.get(this.op).to({y:opY}, 500).call(()=>{
+
+		egret.Tween.get(this.op).to({ y: opY }, 300).call(() => {
 			console.log('op move ok');
 		});
-		
 
-		egret.Tween.get(this.game).to({scaleX:0,scaleY:0}, 500).call(()=>{
+
+		egret.Tween.get(this.gameGroup).to({ scaleX: 0, scaleY: 0 }, 300).call(() => {
 			this.main.setPage("over");
 		})
-		
+
 	}
 
 	protected onButtonBombClick(e: egret.TouchEvent): void {
+		if (this.is_bombing) return;
+
 		console.log('onButtonBombClick', this.bomb_times, this.left_bomb_times);
 		if (this.bomb_times > 0) {
 			return;
@@ -645,6 +691,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			if (platform && platform.shareAppMessage) {
 				platform.shareAppMessage();
 				this.left_bomb_times = 1;
+
+				this.bomb.source = "game_bomb_png";
 			}
 
 			return;
@@ -659,6 +707,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			this.hammerview = ResTools.createBitmapByName('game_hammer_png');
 			this.hammerview.width = 2 * this.gz_width;
 			this.hammerview.height = 2 * this.gz_width;
+			this.hammerview.anchorOffsetX = this.hammerview.width;
+			this.hammerview.anchorOffsetY = this.hammerview.height;
 			this.addChild(this.hammerview);
 		}
 
@@ -677,15 +727,20 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	private onBombTouchBegin(e: egret.TouchEvent): void {
 		console.log('onBombTouchBegin');
-		this.hammerview.y = e.stageY - this.y - 300;
-		this.hammerview.x = e.stageX - this.x - this.hammerview.width / 2;
+		if (this.is_bombing) return;
+		this.hammerview.y = e.stageY - 300 + this.hammerview.height;
+		this.hammerview.x = e.stageX + this.hammerview.width / 2;
 	}
 
 	private onBombTouchMove(e: egret.TouchEvent): void {
+		if (this.is_bombing) return;
 
-		this.hammerview.y = e.stageY - this.y - 300;
-		this.hammerview.x = e.stageX - this.x - this.hammerview.width / 2;
-		let area = this.gameData.getBombArea(this.hammerview.x + this.gz_width / 2 - this.game.x, this.hammerview.y + this.gz_width / 2 - this.game.y);
+		this.hammerview.y = e.stageY - 300 + this.hammerview.height;
+		this.hammerview.x = e.stageX + this.hammerview.width / 2;
+
+		let area = this.gameData.getBombArea(
+			this.hammerview.x - this.hammerview.width + this.gz_width / 2 - this.gameGroup.x + this.gameGroup.width / 2 - this.game.x,
+			this.hammerview.y - this.hammerview.height + this.gz_width / 2 - this.gameGroup.y + this.gameGroup.height / 2 - this.game.y);
 		console.log('onBombTouchMove:', area);
 		this.bomb_area = area;
 		if (area.find) {
@@ -700,44 +755,62 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	}
 
+	private is_bombing = false;
 	private onBombTouchEnd(e: egret.TouchEvent): void {
 		console.log('onBombTouchEnd');
-
-		let bomb_used = false;
-		if (this.bomb_area.find) {
-			let bomb_gzs = this.gameData.bomb(this.bomb_area);
-			for (let i = 0; i < bomb_gzs.length; i++) {
-				this.clearGz(i, bomb_gzs[i]);
-
-				bomb_used = true;
-			}
-		}
-
-		if (this.bombview.parent) {
-			this.bombview.parent.removeChild(this.bombview);
-			this.bombview = null;
-		}
-
-		if (this.hammerview.parent) {
-			this.hammerview.parent.removeChild(this.hammerview);
-			this.hammerview = null;
-		}
-
-		if (bomb_used) {
-			this.bomb_times++;
-
-			this.bomb.source = "game_nobomb_png";
-		}
-
-
-		this.checkOver();
+		if (this.is_bombing) return;
+		this.is_bombing = true;
 
 		this.removeEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onBombTouchBegin, this);
 		this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onBombTouchMove, this);
 		this.removeEventListener(egret.TouchEvent.TOUCH_END, this.onBombTouchEnd, this);
 		this.removeEventListener(egret.TouchEvent.TOUCH_CANCEL, this.onBombTouchEnd, this);
 		this.removeEventListener(egret.TouchEvent.TOUCH_RELEASE_OUTSIDE, this.onBombTouchEnd, this);
+
+		let bomb_gzs = [];
+		if (this.bomb_area.find) {
+			// 可以锤了
+			bomb_gzs = this.gameData.bomb(this.bomb_area);
+		}
+
+		if (bomb_gzs.length > 0) {
+			egret.Tween.get(this.hammerview)
+				.to({ rotation: 30 }, 200)
+				.to({ rotation: -40 }, 200)
+				.call(() => {
+					for (let i = 0; i < bomb_gzs.length; i++) {
+						this.clearGz(i, bomb_gzs[i]);
+					}
+
+					if (this.bombview.parent) {
+						this.bombview.parent.removeChild(this.bombview);
+						this.bombview = null;
+					}
+
+					if (this.hammerview.parent) {
+						this.hammerview.parent.removeChild(this.hammerview);
+						this.hammerview = null;
+					}
+
+					this.bomb_times++;
+					this.bomb.source = "game_nobomb_png";
+					this.checkOver();
+
+					this.is_bombing = false;
+				});
+		}
+		else {
+			if (this.bombview.parent) {
+				this.bombview.parent.removeChild(this.bombview);
+				this.bombview = null;
+			}
+
+			if (this.hammerview.parent) {
+				this.hammerview.parent.removeChild(this.hammerview);
+				this.hammerview = null;
+			}
+
+			this.is_bombing = false;
+		}
 	}
-
-
 }

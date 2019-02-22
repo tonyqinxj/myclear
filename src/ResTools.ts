@@ -30,4 +30,9 @@ class ResTools {
 		var result: egret.Texture = sheet.getTexture(name);
 		return result;
 	}
+
+
+	public static playMusic(name:string, times:number):void {
+		
+	}
 }

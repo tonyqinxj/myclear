@@ -16,7 +16,7 @@ var BlockView = (function (_super) {
         _this.gz_width = gz_width;
         _this.fk_width = fk_width;
         _this.blockInfo = blockInfo;
-        _this.block_scale = 0.35;
+        _this.block_scale = 0.3;
         _this.state = null;
         _this.fklist = [];
         return _this;

@@ -172,7 +172,8 @@ var GameUI = (function (_super) {
         this.curblockview.x = e.stageX - this.x - this.curblockview.width / 2;
         this.curblockview.y = e.stageY - this.y - 350 - this.curblockview.height / 2;
         //console.log('onTouchMove:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
-        var pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
+        var pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.gameGroup.x + this.gameGroup.width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.gameGroup.y + this.gameGroup.height / 2 - this.game.y);
+        console.log('move pos:', pos);
         var canPutDown = false;
         var r = 0;
         var c = 0;
@@ -230,7 +231,7 @@ var GameUI = (function (_super) {
             return;
         console.log('onBlockTouchEnd:', e.stageX, e.stageY);
         // 点的转换
-        var pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.game.y);
+        var pos = this.gameData.getPos(this.curblockview.x + this.gz_width / 2 - this.gameGroup.x + this.gameGroup.width / 2 - this.game.x, this.curblockview.y + this.gz_width / 2 - this.gameGroup.y + this.gameGroup.height / 2 - this.game.y);
         var canPutDown = false;
         var r = 0;
         var c = 0;
@@ -450,7 +451,7 @@ var GameUI = (function (_super) {
         egret.Tween.get(this.op).to({ y: opY }, 500).call(function () {
             console.log('op move ok');
         });
-        egret.Tween.get(this.game).to({ scaleX: 0, scaleY: 0 }, 500).call(function () {
+        egret.Tween.get(this.gameGroup).to({ scaleX: 0, scaleY: 0 }, 500).call(function () {
             _this.main.setPage("over");
         });
     };
@@ -495,7 +496,7 @@ var GameUI = (function (_super) {
     GameUI.prototype.onBombTouchMove = function (e) {
         this.hammerview.y = e.stageY - this.y - 300;
         this.hammerview.x = e.stageX - this.x - this.hammerview.width / 2;
-        var area = this.gameData.getBombArea(this.hammerview.x + this.gz_width / 2 - this.game.x, this.hammerview.y + this.gz_width / 2 - this.game.y);
+        var area = this.gameData.getBombArea(this.hammerview.x + this.gz_width / 2 - this.gameGroup.x + this.gameGroup.width / 2 - this.game.x, this.hammerview.y + this.gz_width / 2 - this.gameGroup.y + this.gameGroup.height / 2 - this.game.y);
         console.log('onBombTouchMove:', area);
         this.bomb_area = area;
         if (area.find) {

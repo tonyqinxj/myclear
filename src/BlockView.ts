@@ -19,7 +19,7 @@ class BlockView extends eui.Group {
 		this.fk_width = fk_width;
 
 		this.blockInfo = blockInfo;
-		this.block_scale = 0.35;
+		this.block_scale = 0.3;
 		this.state = null;
 		this.fklist = [];
 		//this.op.addChild(this);
