@@ -65,4 +65,5 @@
 		</e:layout>
 	</e:Group>
 	<e:Group id="ad" width="698" height="236" anchorOffsetX="0" anchorOffsetY="0" horizontalCenter="0" bottom="0" />
+	<e:Image id="miniApp" width="40" height="54" x="700" y="235" source="rank_gold_png" anchorOffsetX="20" anchorOffsetY="27"/>
 </e:Skin>

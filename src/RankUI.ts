@@ -84,10 +84,15 @@ class RankUI {
 
 		// 绘制排行底板：
 		let rank_top_panel = ResTools.createBitmapByName('game_panel_png');
+		//let rank_top_panel:egret.Bitmap = new egret.Bitmap();
+		//rank_top_panel.texture = RES.getRes('game_panel_png');
+		let rect: egret.Rectangle = new egret.Rectangle(30, 1, 1, 30);
+		rank_top_panel.scale9Grid = rect;
 		rank_top_panel.x = 70;
 		rank_top_panel.y = 226;
 		rank_top_panel.width = 611;
 		rank_top_panel.height = 658;
+
 		this.myparent.addChild(rank_top_panel);
 		this.rank_top_panel = rank_top_panel;
 

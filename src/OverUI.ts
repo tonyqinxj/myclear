@@ -82,6 +82,8 @@ class OverUI extends eui.Component implements eui.UIComponent {
 
 	private onShareClick(e: egret.TouchEvent): void {
 		console.log('onShareClick');
+		let platform: Platform = window.platform;
+		platform.shareAppMessage();
 
 	}
 

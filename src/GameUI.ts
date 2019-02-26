@@ -3,10 +3,12 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	// 以下对应exml中的控件
 	private music: eui.Image;
-	private musicLabel:eui.Label;
+	private musicLabel: eui.Label;
 	private replay: eui.Button;
 	private rank: eui.Button;
 	private bomb: eui.Image;
+
+	private miniApp: eui.Image;
 
 	private change: eui.Button;
 	private op1: eui.Group;
@@ -85,64 +87,6 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		if (this.main.highScore) this.isNewPlayer = false;
 	}
 
-	protected playMusic(name: string, times: number): void {
-		if(this.music_off) return;
-		//		ResTools.playMusic(name, times);
-		console.log('play:', name, times);
-		let res_name = 'resource/sounds/' + name.match(/(.+)_mp3/)[1] + '.mp3';
-
-		let platform: Platform = window.platform;
-		platform.playMusic(res_name, times);
-		return;
-
-		// 方法一
-		// for (let i = 0; i < this.sounds.length; i++) {
-		// 	let sound = this.sounds[i];
-		// 	if (sound.name == name) {
-		// 		sound.sound.play(0, times);
-		// 		return;
-		// 	}
-		// }
-
-
-		// var loader: egret.URLLoader = new egret.URLLoader();
-		// loader.addEventListener(egret.Event.COMPLETE, function loadOver(event: egret.Event) {
-		// 	var sound: egret.Sound = loader.data;
-		// 	sound.play(0, times);
-		// 	this.sounds.push({
-		// 		name: name,
-		// 		sound: sound
-		// 	})
-		// }, this);
-		// loader.dataFormat = egret.URLLoaderDataFormat.SOUND;
-		// loader.load(new egret.URLRequest(res_name));
-
-
-		// 方法二
-
-		// let sound: egret.Sound = new egret.Sound();
-		// sound.addEventListener(egret.Event.COMPLETE, (event: egret.Event) => {
-		// 	sound.play(0, times);
-		// 	this.sounds.push({
-		// 		name: name,
-		// 		sound: sound
-		// 	})
-		// }, this);
-		// sound.addEventListener(egret.IOErrorEvent.IO_ERROR, (event: egret.IOErrorEvent) => {
-		// 	console.log("loaded error!");
-		// }, this);
-		// sound.load(res_name);
-
-
-		// 方法三
-		//let sound: egret.Sound = RES.getRes(name);
-		//sound.play(0, times);
-
-		// this.sounds.push({
-		// 	name: name,
-		// 	sound: sound
-		// })
-	}
 
 	protected partAdded(partName: string, instance: any): void {
 		super.partAdded(partName, instance);
@@ -158,6 +102,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 
 	private init(): void {
+
+		// 初始化广告控件
+		//this.removeChild(this.miniApp);
+
 		this.lastcleartime = 0;
 		this.cleartimes = 0;
 
@@ -219,6 +167,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 					this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
 					this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
 					this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
+
+					this.initMiniApp();
 				}
 
 			});
@@ -252,6 +202,16 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.bomb_area = {
 			find: false
 		};
+
+
+	}
+
+	private initMiniApp(): any {
+		this.addChild(this.miniApp);
+		egret.Tween.get(this.miniApp, { loop: true })
+			.wait(3000).to({ rotation: 45 }, 150).to({ rotation: -45 }, 150).to({ rotation: 45 }, 150);
+		this.miniApp.touchEnabled = true;
+		this.miniApp.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonMiniAppClick, this);
 	}
 
 	private newPlayFinish(): any {
@@ -275,6 +235,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
 		this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
 		this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
+
+		this.initMiniApp();
 	}
 
 	private initGridNew(): any {
@@ -619,14 +581,27 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	private music_off = false;
 
+	protected onButtonMiniAppClick(e: egret.TouchEvent): void {
+		console.log('onButtonMiniAppClick');
+		this.goApp().catch(e => {
+			console.log(e);
+		});
+	}
+
+	private async goApp() {
+		let platform: Platform = window.platform;
+		let ret = await platform.navigateToMiniProgram('wx845c44523d1d7ef4', '');
+		console.log(ret);
+	}
+
 	protected onButtonMusicClick(e: egret.TouchEvent): void {
 		console.log('onButtonMusicClick');
 		this.music_off = !this.music_off;
 		let platform: Platform = window.platform;
-		if(this.music_off){
+		if (this.music_off) {
 			this.music.source = 'game_v_close_png';
 			platform.pauseLoopMusic();
-		}else{
+		} else {
 			this.music.source = 'game_v_open_png';
 			platform.resumeLoopMusic();
 		}
@@ -1116,4 +1091,64 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.click_bitmap && this.click_bitmap.parent && this.click_bitmap.parent.removeChild(this.click_bitmap);
 		this.click_bitmap = null;
 	}
+
+	protected playMusic(name: string, times: number): void {
+		if (this.music_off) return;
+		//		ResTools.playMusic(name, times);
+		console.log('play:', name, times);
+		let res_name = 'resource/sounds/' + name.match(/(.+)_mp3/)[1] + '.mp3';
+
+		let platform: Platform = window.platform;
+		platform.playMusic(res_name, times);
+		return;
+
+		// 方法一
+		// for (let i = 0; i < this.sounds.length; i++) {
+		// 	let sound = this.sounds[i];
+		// 	if (sound.name == name) {
+		// 		sound.sound.play(0, times);
+		// 		return;
+		// 	}
+		// }
+
+
+		// var loader: egret.URLLoader = new egret.URLLoader();
+		// loader.addEventListener(egret.Event.COMPLETE, function loadOver(event: egret.Event) {
+		// 	var sound: egret.Sound = loader.data;
+		// 	sound.play(0, times);
+		// 	this.sounds.push({
+		// 		name: name,
+		// 		sound: sound
+		// 	})
+		// }, this);
+		// loader.dataFormat = egret.URLLoaderDataFormat.SOUND;
+		// loader.load(new egret.URLRequest(res_name));
+
+
+		// 方法二
+
+		// let sound: egret.Sound = new egret.Sound();
+		// sound.addEventListener(egret.Event.COMPLETE, (event: egret.Event) => {
+		// 	sound.play(0, times);
+		// 	this.sounds.push({
+		// 		name: name,
+		// 		sound: sound
+		// 	})
+		// }, this);
+		// sound.addEventListener(egret.IOErrorEvent.IO_ERROR, (event: egret.IOErrorEvent) => {
+		// 	console.log("loaded error!");
+		// }, this);
+		// sound.load(res_name);
+
+
+		// 方法三
+		//let sound: egret.Sound = RES.getRes(name);
+		//sound.play(0, times);
+
+		// this.sounds.push({
+		// 	name: name,
+		// 	sound: sound
+		// })
+	}
+
 }
