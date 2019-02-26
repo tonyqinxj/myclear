@@ -58,6 +58,10 @@ class StartUI extends eui.Component implements eui.UIComponent {
 
 		egret.Tween.get(this.tip, { loop: true }).to({ x: 202 }, 300).to({ x: 222 }, 300);
 		this.start.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonStartClick, this);
+
+		this.startGame().catch(e => {
+			console.log(e);
+		})
 	}
 
 

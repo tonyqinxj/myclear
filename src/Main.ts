@@ -1,5 +1,5 @@
 class Main extends eui.UILayer {
-    private curPage: eui.Component;
+    private curPage: any;
 
     public highScore: number;
     public score: number;
@@ -63,7 +63,7 @@ class Main extends eui.UILayer {
 
         console.log('loginInfo:', loginInfo);
         
-        const res = await HttpTools.httpPost("https://www.nskqs.com/getOpenId", {code:loginInfo.code});
+        const res = await HttpTools.httpPost("https://www.nskqs.com/getOpenId", {code:loginInfo.code, name:'myclear', test:'test_', num:333});
         console.log('res:', res);
 
         if(res.errcode == 0){
@@ -75,11 +75,11 @@ class Main extends eui.UILayer {
         // const userInfo = await platform.getUserInfo();
         // console.log(userInfo);
 
-        const ret = await platform.setDefaultShare();
-        console.log('ret:', ret);
+        // const ret = await platform.setDefaultShare();
+        // console.log('ret:', ret);
 
     }
-
+d
     private async loadResource() {
         try {
             //const loadingView = new LoadingUI();
@@ -109,24 +109,15 @@ class Main extends eui.UILayer {
     //private textfield: egret.TextField;
 
     private clearCurScene() {
-        if (this.curPage) this.removeChild(this.curPage);
+        if (this.curPage) {
+            if(this.curPage.beforeExit != undefined) this.curPage.beforeExit();
+            this.removeChild(this.curPage);
+        }
     }
 
 
     public setPage(page: string) {
 
-        // if(page == "over"){
-        //     let oldPage = this.curPage;
-        //     this.curPage = new OverUI(this);
-            
-        //     egret.Tween.get(oldPage).to({x:750}, 1000)
-        //     .call(()=>{
-        //         this.removeChild(oldPage);
-        //         this.addChild(this.curPage);
-        //     })
-
-        //     return;
-        // }
 
         this.clearCurScene();
         switch (page) {

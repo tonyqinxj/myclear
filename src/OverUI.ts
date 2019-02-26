@@ -64,6 +64,7 @@ class OverUI extends eui.Component implements eui.UIComponent {
 
 			platform.openDataContext.postMessage({
 				command: "myscore",
+				isDisplay: true,
 				openid: this.main.openid,
 				highscore: this.main.highScore,
 			});
@@ -89,6 +90,18 @@ class OverUI extends eui.Component implements eui.UIComponent {
 		let rank = new RankUI(this.main, this);
 		rank.onButtonRankClick(e);
 
+	}
+
+	public beforeExit() {
+		let platform: any = window.platform;
+		if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
+
+			platform.openDataContext.postMessage({
+				command: "myscore",
+				isDisplay: false,
+			});
+
+		}
 	}
 
 }

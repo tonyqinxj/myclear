@@ -2,7 +2,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private main: Main;
 
 	// 以下对应exml中的控件
-	private music: eui.Button;
+	private music: eui.Image;
+	private musicLabel:eui.Label;
 	private replay: eui.Button;
 	private rank: eui.Button;
 	private bomb: eui.Image;
@@ -80,12 +81,12 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		this.gameData = new myClear.GameData();
 
-		this.main.highScore = 0;
+		//this.main.highScore = 0;
 		if (this.main.highScore) this.isNewPlayer = false;
 	}
 
 	protected playMusic(name: string, times: number): void {
-
+		if(this.music_off) return;
 		//		ResTools.playMusic(name, times);
 		console.log('play:', name, times);
 		let res_name = 'resource/sounds/' + name.match(/(.+)_mp3/)[1] + '.mp3';
@@ -616,8 +617,19 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		rank.onButtonRankClick(e);
 	}
 
+	private music_off = false;
+
 	protected onButtonMusicClick(e: egret.TouchEvent): void {
 		console.log('onButtonMusicClick');
+		this.music_off = !this.music_off;
+		let platform: Platform = window.platform;
+		if(this.music_off){
+			this.music.source = 'game_v_close_png';
+			platform.pauseLoopMusic();
+		}else{
+			this.music.source = 'game_v_open_png';
+			platform.resumeLoopMusic();
+		}
 	}
 
 	protected onButtonChangeClick(e: egret.TouchEvent): void {

@@ -14,6 +14,8 @@ declare interface Platform {
 
     shareAppMessage(): Promise<any>;
 
+    pauseLoopMusic():void;
+    resumeLoopMusic():void;
     playMusic(name:string, times:number):void;
 
 }
@@ -40,6 +42,14 @@ class DebugPlatform implements Platform {
     playMusic(name:string, times:number):void{
 
     } 
+
+    pauseLoopMusic():void{
+        
+    }
+
+    resumeLoopMusic():void{
+
+    }
 }
 
 
