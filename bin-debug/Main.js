@@ -86,7 +86,7 @@ var Main = (function (_super) {
     };
     Main.prototype.goStart = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var loginInfo, res, data;
+            var loginInfo, res, data, ret;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.loadResource()];
@@ -96,7 +96,7 @@ var Main = (function (_super) {
                         return [4 /*yield*/, platform.login()];
                     case 2:
                         loginInfo = _a.sent();
-                        console.log('loginInfo:', loginInfo, loginInfo.code);
+                        console.log('loginInfo:', loginInfo);
                         return [4 /*yield*/, HttpTools.httpPost("https://www.nskqs.com/getOpenId", { code: loginInfo.code })];
                     case 3:
                         res = _a.sent();
@@ -107,6 +107,10 @@ var Main = (function (_super) {
                             egret.localStorage.setItem('myuserinfo', data);
                             console.log('data:', data);
                         }
+                        return [4 /*yield*/, platform.setDefaultShare()];
+                    case 4:
+                        ret = _a.sent();
+                        console.log('ret:', ret);
                         return [2 /*return*/];
                 }
             });

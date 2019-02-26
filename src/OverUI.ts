@@ -30,6 +30,17 @@ class OverUI extends eui.Component implements eui.UIComponent {
 	private rank_bitmap: egret.Bitmap;
 
 	private init(): void {
+
+		if (window["canvas"]) {
+
+			let real_w = window["canvas"].width;
+			let real_h = window["canvas"].height;
+
+			if (real_h / real_w > 2) {
+				this.tip.y += 50;
+			}
+		}
+
 		this.score.text = '' + this.main.score;
 		this.highscore.text = '历史最高分：' + this.main.highScore;
 
@@ -39,7 +50,16 @@ class OverUI extends eui.Component implements eui.UIComponent {
 
 		let platform: any = window.platform;
 		if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
-			this.rank_bitmap = platform.openDataContext.createDisplayObject(null, 750, 1344);
+
+			let h = this.height;
+			if (window["canvas"]) {
+
+				let r_w = window["canvas"].width;
+				let r_h = window["canvas"].height;
+
+				h = Math.floor(r_h * this.width / r_w);
+			}
+			this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.width, h);
 			this.addChild(this.rank_bitmap);
 
 			platform.openDataContext.postMessage({

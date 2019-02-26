@@ -14,6 +14,7 @@
 		"bin-debug/GameData.js",
 		"bin-debug/GameUI.js",
 		"bin-debug/HttpTools.js",
+		"bin-debug/ItemGetTip.js",
 		"bin-debug/LoadingUI.js",
 		"bin-debug/BlockView.js",
 		"bin-debug/OverUI.js",

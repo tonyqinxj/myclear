@@ -10,6 +10,8 @@ declare interface Platform {
 
     login(): Promise<any>;
 
+    setDefaultShare():Promise<any>; 
+
     shareAppMessage(): Promise<any>;
 
     playMusic(name:string, times:number):void;
@@ -24,6 +26,10 @@ class DebugPlatform implements Platform {
     }
 
     async login() {
+
+    }
+
+    async setDefaultShare() {
 
     }
 

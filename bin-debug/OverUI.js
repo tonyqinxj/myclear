@@ -23,6 +23,13 @@ var OverUI = (function (_super) {
         this.init();
     };
     OverUI.prototype.init = function () {
+        if (window["canvas"]) {
+            var real_w = window["canvas"].width;
+            var real_h = window["canvas"].height;
+            if (real_h / real_w > 2) {
+                this.tip.y += 50;
+            }
+        }
         this.score.text = '' + this.main.score;
         this.highscore.text = '历史最高分：' + this.main.highScore;
         egret.Tween.get(this.tip, { loop: true })
@@ -30,7 +37,13 @@ var OverUI = (function (_super) {
             .to({ x: 222 }, 300);
         var platform = window.platform;
         if (platform && platform.openDataContext && platform.openDataContext.postMessage) {
-            this.rank_bitmap = platform.openDataContext.createDisplayObject(null, 750, 1344);
+            var h = this.height;
+            if (window["canvas"]) {
+                var r_w = window["canvas"].width;
+                var r_h = window["canvas"].height;
+                h = Math.floor(r_h * this.width / r_w);
+            }
+            this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.width, h);
             this.addChild(this.rank_bitmap);
             platform.openDataContext.postMessage({
                 command: "myscore",

@@ -239,6 +239,49 @@ namespace myClear {
         //     }
         // }
 
+        public initGridNew() {
+            //
+            let has = [
+                { r: 3, c: 0, colorId: 0, },
+                { r: 3, c: 1, colorId: 0, },
+                { r: 3, c: 2, colorId: 0, },
+                { r: 3, c: 5, colorId: 0, },
+                { r: 3, c: 6, colorId: 0, },
+                { r: 3, c: 7, colorId: 0, },
+                { r: 4, c: 0, colorId: 0, },
+                { r: 4, c: 1, colorId: 0, },
+                { r: 4, c: 2, colorId: 0, },
+                { r: 4, c: 5, colorId: 0, },
+                { r: 4, c: 6, colorId: 0, },
+                { r: 4, c: 7, colorId: 0, },
+            ];
+
+            // 
+            let need1 = { r: 3, c: 3, w: 1, h: 2 };
+            let need2 = { r: 3, c: 4, w: 1, h: 2 };
+
+            has.forEach(value => {
+                this.gameGrid[value.r][value.c].num = 1;
+                this.gameGrid[value.r][value.c].colorId = value.colorId;
+            });
+
+
+            return {
+                has: has,
+                need1: need1,
+                need2: need2
+            }
+        }
+
+        public initBlockNew() {
+            if (this.blocks.length > 0) {
+                this.blocks = [];
+            }
+            this.blocks.push({ id: 0, colorId: 0, blockId: 0, canPut: false, isPut: true });
+            this.blocks.push({ id: 1, colorId: 0, blockId: 5, canPut: true, isPut: false });
+            this.blocks.push({ id: 2, colorId: 0, blockId: 0, canPut: false, isPut: true });
+        }
+
         // 初始化一批block（每一批3个）
         public initBlock() {
             if (this.blocks.length > 0) {

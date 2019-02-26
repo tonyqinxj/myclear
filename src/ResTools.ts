@@ -33,6 +33,10 @@ class ResTools {
 
 
 	public static playMusic(name:string, times:number):void {
-		
+			console.log('play:', name, times);
+		let res_name = 'resource/sounds/' + name.match(/(.+)_mp3/)[1] + '.mp3';
+
+		let platform: Platform = window.platform;
+		platform.playMusic(res_name, times);
 	}
 }

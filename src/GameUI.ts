@@ -19,6 +19,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private gameGroup: eui.Group;
 	private topGroup: eui.Group;
 	private op: eui.Group;
+	private ad: eui.Group;
 
 	private changeNum: eui.Label;
 
@@ -59,6 +60,15 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	// 音效
 	private sounds = [];
 
+	//	道具获取辅助类
+	private itemGetTip: ItemGetTip = null;
+
+	// 是否做新手引导
+	private isNewPlayer: boolean = true;
+	private new_cur_pos: any = null;//{ r: 3, c: 3 };
+	private new_mask_shape: egret.Sprite = null;
+	private new_tip_shape: egret.Shape = null;
+
 	public constructor(main: Main) {
 		super();
 		this.main = main;
@@ -70,6 +80,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		this.gameData = new myClear.GameData();
 
+		this.main.highScore = 0;
+		if (this.main.highScore) this.isNewPlayer = false;
 	}
 
 	protected playMusic(name: string, times: number): void {
@@ -159,6 +171,19 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		this.gameData.initGrid();
 
+		if (window["canvas"]) {
+			let real_w = window["canvas"].width;
+			let real_h = window["canvas"].height;
+
+			if (real_h / real_w > 2) {
+				this.topGroup.y += 50;
+				this.gameGroup.y += 50;
+				this.op.y += 50;
+				this.ad.y += 50;
+			}
+		}
+
+
 		let oldtopy = this.topGroup.y;
 		let oldgamey = this.gameGroup.y;
 		let oldopy = this.op.y;
@@ -176,17 +201,25 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			.call(() => {
 
 				console.log('pos 3:', this.topGroup.y, this.gameGroup.y, this.op.y);
-				this.initBlock();
 
-				this.music.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonMusicClick, this);
-				this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonReplayClick, this);
-				this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonRankClick, this);
-				this.bomb.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonBombClick, this);
-				this.change.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonChangeClick, this);
+				if (this.isNewPlayer) {
+					this.initGridNew();
+					this.initBlockNew();
+					this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
+				} else {
+					this.initBlock();
 
-				this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
-				this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
-				this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
+					this.music.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonMusicClick, this);
+					this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonReplayClick, this);
+					this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonRankClick, this);
+					this.bomb.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonBombClick, this);
+					this.change.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonChangeClick, this);
+
+					this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
+					this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
+					this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
+				}
+
 			});
 
 
@@ -219,7 +252,91 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			find: false
 		};
 	}
-	private initBlock(): void {
+
+	private newPlayFinish(): any {
+		this.delHoll();
+
+		this.new_mask_shape && this.new_mask_shape.parent && this.new_mask_shape.parent.removeChild(this.new_mask_shape);
+		this.new_tip_shape && this.new_tip_shape.parent && this.new_tip_shape.parent.removeChild(this.new_tip_shape);
+		this.click_bitmap && this.click_bitmap.parent && this.click_bitmap.parent.removeChild(this.click_bitmap);
+
+		this.new_tip_shape = null;
+		this.new_cur_pos = null;
+		this.isNewPlayer = false;
+		this.click_bitmap = null;
+
+		this.music.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonMusicClick, this);
+		this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonReplayClick, this);
+		this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonRankClick, this);
+		this.bomb.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonBombClick, this);
+		this.change.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonChangeClick, this);
+
+		this.op1.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp1Click, this);
+		this.op2.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp2Click, this);
+		this.op3.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonOp3Click, this);
+	}
+
+	private initGridNew(): any {
+
+		// 初始化格子
+		let data = this.gameData.initGridNew();
+
+		// 预先摆好一些
+		data.has.forEach(value => {
+			let color = myClear.Color_conf[value.colorId];
+			let gz = ResTools.createBitmapByName(color);
+			let gz_info = this.gameData.getGridInfoByPos(value.r, value.c);
+
+			this.gameData.attachGz(value.r, value.c, gz);
+			gz.anchorOffsetX = this.fk_width / 2;
+			gz.anchorOffsetY = this.fk_width / 2;
+			gz.x = gz_info.x;
+			gz.y = gz_info.y;
+
+			gz.width = this.fk_width;
+			gz.height = this.fk_width;
+
+			this.game.addChild(gz);
+		})
+
+		// 初始化block可以拖放的位置
+		this.new_cur_pos = { r: 3, c: 3 };
+
+		this.addHoll();
+
+	}
+
+
+	private initBlockNew(): any {
+		// 画出block可以拖放的区域
+		this.new_tip_shape && this.new_tip_shape.parent && this.new_tip_shape.parent.removeChild(this.new_tip_shape);
+		this.new_tip_shape = new egret.Shape();
+		this.new_tip_shape.graphics.lineStyle(3, 0xFFFFFF);
+		this.new_tip_shape.graphics.drawRect(this.new_cur_pos.c * this.gz_width + 3, this.new_cur_pos.r * this.gz_width + 3, this.gz_width - 6, this.gz_width * 2 - 6);
+		this.new_tip_shape.graphics.endFill();
+		this.game.addChild(this.new_tip_shape);
+
+		egret.Tween.get(this.new_tip_shape, { loop: true })
+			.to({ alpha: 1 }, 200).wait(300)
+			.to({ alpha: 0.5 }, 200);
+
+		this.addClickTip();
+
+
+		// 初始化op区
+		this.gameData.initBlockNew();
+		this.opdata[1].blockView = new BlockView(this.opdata[1].op, this.gz_width, this.fk_width, {
+			id: 1,
+			colorId: 0,
+			blockId: 5,
+			canPut: true,
+			isPut: false
+		});
+
+		this.opdata[1].op.addChild(this.opdata[1].blockView);
+	}
+
+	private initBlock(): any {
 		// 对block的数据进行初始化
 		this.gameData.initBlock();
 
@@ -230,7 +347,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			this.opdata[i].op.addChild(this.opdata[i].blockView);
 		}
 
-		this.checkOver();
+		return this.checkOver();
 
 	}
 
@@ -283,6 +400,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		this.curblockview.y = e.stageY - this.y - 150 - this.curblockview.height;
 		console.log('onBlockTouchBegin:', this.curblockview.x, this.curblockview.y, e.stageX, e.stageY);
 
+		if (this.isNewPlayer) {
+			this.delClickTip();
+		}
 
 	}
 
@@ -300,6 +420,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			this.curblockview.y + this.gz_width / 2 - this.gameGroup.y + this.gameGroup.height / 2 - this.game.y
 		);
 
+
 		console.log('move pos:', pos);
 
 		let canPutDown = false;
@@ -312,6 +433,15 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			r = pos.r;
 			c = pos.c;
 			canPutDown = this.gameData.blockCanPutPoint(r, c, blockInfo.id);
+		}
+
+		// 新手引导阶段
+		if (this.isNewPlayer) {
+			if (canPutDown) {
+				if (r != this.new_cur_pos.r || c != this.new_cur_pos.c) {
+					canPutDown = false;
+				}
+			}
 		}
 
 		if (canPutDown) {
@@ -366,6 +496,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 				this.game.removeChild(s);
 			})
 			this.shadow = [];
+			this.shadow_pos = null;
 		}
 	}
 
@@ -387,6 +518,16 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			c = pos.c;
 			canPutDown = this.gameData.blockCanPutPoint(r, c, this.curblockview.getBlockInfo().id);
 		}
+
+		// 新手引导相关
+		if (this.isNewPlayer) {
+			if (canPutDown) {
+				if (r != this.new_cur_pos.r || c != this.new_cur_pos.c) {
+					canPutDown = false;
+				}
+			}
+		}
+
 
 		console.log('onBlockTouchEnd 1:', pos, r, c, canPutDown);
 
@@ -412,6 +553,10 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 			this.curblockview = null;
 			//this.curblockview.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onBlockTouchBegin1, this);
+
+			if (this.isNewPlayer) {
+				this.addClickTip();
+			}
 		}
 
 
@@ -457,10 +602,13 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 	protected onButtonReplayClick(e: egret.TouchEvent): void {
 		console.log('onButtonReplayClick');
-		let platform: any = window.platform;
-		if (platform && platform.shareAppMessage) {
-			platform.shareAppMessage();
-		}
+		// let platform: any = window.platform;
+		// if (platform && platform.shareAppMessage) {
+		// 	platform.shareAppMessage();
+		// }
+
+
+		this.main.setPage("game");
 	}
 
 	protected onButtonRankClick(e: egret.TouchEvent): void {
@@ -572,7 +720,15 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		// 如果没有可用的组合，则再次生产
 		if (this.gameData.haveBlockToUse() == false) {
-			this.initBlock();
+			if (this.isNewPlayer && this.new_cur_pos.c == 3) {
+				this.new_cur_pos.c = 4;
+				this.initBlockNew();
+			} else {
+				this.newPlayFinish();
+				this.initBlock();
+			}
+
+
 		}
 	}
 
@@ -613,9 +769,11 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	}
 
-	private checkOver() {
+	private checkOver(): any {
 
 		let overdata = this.gameData.checkOver();
+
+
 
 		// 灰度不可用的
 		for (let i = 0; i < 3; i++) {
@@ -649,7 +807,15 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 			this.highScore.text = '' + this.main.highScore;
 			this.goOver();
+		} else {
+			if (this.itemGetTip == null && this.bomb_times == 0 && this.left_bomb_times == 0 && overdata.cantnum > 0) {
+				this.itemGetTip = new ItemGetTip(this, 'bomb');
+			}
 		}
+
+
+
+		return overdata;
 	}
 
 
@@ -690,8 +856,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 			let platform: any = window.platform;
 			if (platform && platform.shareAppMessage) {
 				platform.shareAppMessage();
-				this.left_bomb_times = 1;
 
+				this.left_bomb_times = 1;
 				this.bomb.source = "game_bomb_png";
 			}
 
@@ -701,6 +867,8 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		if (this.curblockview) {
 			this.onTouchEnd(e);
 		}
+
+		this.playMusic('putup_mp3', 1);
 
 		// 创建锤子模型
 		if (this.hammerview == null) {
@@ -774,10 +942,12 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		}
 
 		if (bomb_gzs.length > 0) {
+
 			egret.Tween.get(this.hammerview)
 				.to({ rotation: 30 }, 200)
 				.to({ rotation: -40 }, 200)
 				.call(() => {
+					this.playMusic('1_mp3', 1);
 					for (let i = 0; i < bomb_gzs.length; i++) {
 						this.clearGz(i, bomb_gzs[i]);
 					}
@@ -812,5 +982,126 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 			this.is_bombing = false;
 		}
+	}
+
+
+	public onShare(type: string): void {
+		// if (type == "change") {
+		// 	this.onButtonChangeClick(null);
+		// } else if (type == "bomb") {
+		// 	this.onButtonBombClick(null);
+		// }
+
+		console.log('onShare', this.bomb_times, this.left_bomb_times);
+		if (this.bomb_times > 0 || this.left_bomb_times > 0) {
+			return;
+		}
+
+
+		var timer: egret.Timer = new egret.Timer(100, 1);
+
+		//注册事件侦听器
+		timer.addEventListener(egret.TimerEvent.TIMER, () => {
+			console.log("计时");
+		}, this);
+		timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, () => {
+			console.log("计时结束");
+
+			let platform: any = window.platform;
+			if (platform && platform.shareAppMessage) {
+				platform.shareAppMessage();
+
+				this.left_bomb_times = 1;
+				this.bomb.source = "game_bomb_png";
+
+				this.itemGetTip = null;
+			}
+
+		}, this);
+		//开始计时
+		timer.start();
+	}
+
+	// public onWatch(type: string): void {
+	// 	if (type == "change") {
+	// 		this.onButtonChangeClick(null);
+	// 	} else if (type == "bomb") {
+	// 		this.onButtonBombClick(null);
+	// 	}
+	// }
+
+
+	// //////////////////////////////////////////////////////
+	// 挖洞
+	private holl_bitmap: egret.Bitmap = null;
+	private click_bitmap: egret.Bitmap = null;
+	private addHoll() {
+		// 挖洞
+		let container: egret.DisplayObjectContainer = new egret.DisplayObjectContainer();
+
+		//创建一个背景
+		let bg: egret.Sprite = new egret.Sprite();
+		bg.graphics.beginFill(0x000000, 1);
+		bg.graphics.drawRect(0, 0, this.width, this.height);
+		bg.graphics.endFill();
+		bg.alpha = 0.5;
+
+
+		//洞的大小图片
+		let holl: egret.Sprite = new egret.Sprite();
+		holl.graphics.beginFill(0x000000, 1);
+		holl.graphics.drawRect(this.gameGroup.x - 4 * this.gz_width - 3, this.gameGroup.y - this.gz_width - 3, 8 * this.gz_width + 6, 2 * this.gz_width + 6);
+		holl.graphics.endFill();
+		holl.blendMode = egret.BlendMode.ERASE;
+
+
+		let holl_2: egret.Sprite = new egret.Sprite();
+		holl_2.graphics.beginFill(0x000000, 1);
+		holl_2.graphics.drawCircle(this.op.x + this.op.width / 2, this.op.y + this.op.height / 2, this.opdata[1].op.width / 2);
+		holl_2.graphics.endFill();
+		holl_2.blendMode = egret.BlendMode.ERASE;
+
+		container.addChild(bg);
+		container.addChild(holl);
+		container.addChild(holl_2);
+
+
+		let renderTexture: egret.RenderTexture = new egret.RenderTexture();
+		renderTexture.drawToTexture(container);
+
+		let bitmap: egret.Bitmap = new egret.Bitmap(renderTexture);
+		this.addChild(bitmap);
+		this.holl_bitmap = bitmap;
+
+
+	}
+
+	private delHoll() {
+		this.holl_bitmap && this.holl_bitmap.parent && this.holl_bitmap.parent.removeChild(this.holl_bitmap);
+		// 停止手势动画
+
+	}
+
+	private addClickTip() {
+		this.click_bitmap = ResTools.createBitmapByName('click_tip_png');
+		this.click_bitmap.x = this.op.x + this.op.width / 2;
+		this.click_bitmap.y = this.op.y + this.op.height / 2;
+		this.addChild(this.click_bitmap);
+
+		let x0 = this.new_cur_pos.c == 3 ? this.gameGroup.x - this.gz_width : this.gameGroup.x;
+		let y0 = this.gameGroup.y;
+		let x1 = this.click_bitmap.x;
+		let y1 = this.click_bitmap.y;
+
+		console.log('addClickTip:', x0, y0, x1, y1);
+		egret.Tween.get(this.click_bitmap, { loop: true })
+			.to({ x: x0, y: y0 }, 1000)
+			.to({ x: x1, y: y1, scaleX: 1.8, scaleY: 1.8 }, 500)
+			.to({ scaleX: 1, scaleY: 1 }, 50);
+	}
+
+	private delClickTip() {
+		this.click_bitmap && this.click_bitmap.parent && this.click_bitmap.parent.removeChild(this.click_bitmap);
+		this.click_bitmap = null;
 	}
 }

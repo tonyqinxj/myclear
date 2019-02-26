@@ -1,20 +1,20 @@
 {
-    "168b1792074": {
-        "path": "..\\resource\\eui_skins\\StartUI.ts",
-        "class": "StartUI",
-        "parentPath": ""
-    },
-    "global": {
-        "globalAutoLayerMarkEnable": false
-    },
-    "168d6908789": {
-        "path": "..\\resource\\eui_skins\\OverUI.ts",
-        "class": "OverUI",
-        "parentPath": ""
-    },
-    "1690a37dd32": {
-        "path": "..\\resource\\eui_skins\\RankUI.ts",
-        "class": "RankUI",
-        "parentPath": ""
-    }
+  "168b1792074": {
+    "path": "..\\resource\\eui_skins\\StartUI.ts",
+    "class": "StartUI",
+    "parentPath": ""
+  },
+  "global": {
+    "globalAutoLayerMarkEnable": true
+  },
+  "168d6908789": {
+    "path": "..\\resource\\eui_skins\\OverUI.ts",
+    "class": "OverUI",
+    "parentPath": ""
+  },
+  "1690a37dd32": {
+    "path": "..\\resource\\eui_skins\\RankUI.ts",
+    "class": "RankUI",
+    "parentPath": ""
+  }
 }

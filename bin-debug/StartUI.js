@@ -68,6 +68,13 @@ var StartUI = (function (_super) {
     // 	this.addChild(this._bitmapText);
     // }
     StartUI.prototype.init = function () {
+        if (window["canvas"]) {
+            var real_w = window["canvas"].width;
+            var real_h = window["canvas"].height;
+            if (real_h / real_w > 2) {
+                this.tip.y += 50;
+            }
+        }
         egret.Tween.get(this.tip, { loop: true }).to({ x: 202 }, 300).to({ x: 222 }, 300);
         this.start.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonStartClick, this);
     };

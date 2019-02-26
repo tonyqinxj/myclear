@@ -29,7 +29,7 @@ class StartUI extends eui.Component implements eui.UIComponent {
 
 		// test font
 		//RES.getResByUrl("resource/fonts/mynumber.fnt", this.onFontComplete, this, RES.ResourceItem.TYPE_FONT);
-	
+
 
 	}
 
@@ -46,7 +46,17 @@ class StartUI extends eui.Component implements eui.UIComponent {
 
 	private init(): void {
 
-		egret.Tween.get(this.tip, {loop:true}).to({x:202}, 300).to({x:222}, 300);
+		if (window["canvas"]) {
+			let real_w = window["canvas"].width;
+			let real_h = window["canvas"].height;
+
+			if (real_h / real_w > 2) {
+				this.tip.y += 50;
+			}
+		}
+
+
+		egret.Tween.get(this.tip, { loop: true }).to({ x: 202 }, 300).to({ x: 222 }, 300);
 		this.start.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onButtonStartClick, this);
 	}
 
@@ -69,7 +79,7 @@ class StartUI extends eui.Component implements eui.UIComponent {
 			if (this.resOK) return;
 
 			this.resOK = true;
-			
+
 			this.removeChild(this.start_bg);
 			this.removeChild(this.start);
 

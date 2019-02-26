@@ -46,19 +46,22 @@ class Main extends eui.UILayer {
         egret.registerImplementation("eui.IAssetAdapter", assetAdapter);
         egret.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
 
-
+        
         this.goStart().catch(e => {
             console.log(e);
         })
     }
 
     private async goStart() {
+
         await this.loadResource()
         this.setPage("start");
         // const result = await RES.getResAsync("description_json")
         // this.startAnimation(result);
         const loginInfo = await platform.login();
-        console.log('loginInfo:', loginInfo, loginInfo.code);
+
+
+        console.log('loginInfo:', loginInfo);
         
         const res = await HttpTools.httpPost("https://www.nskqs.com/getOpenId", {code:loginInfo.code});
         console.log('res:', res);
@@ -71,6 +74,9 @@ class Main extends eui.UILayer {
         }
         // const userInfo = await platform.getUserInfo();
         // console.log(userInfo);
+
+        const ret = await platform.setDefaultShare();
+        console.log('ret:', ret);
 
     }
 

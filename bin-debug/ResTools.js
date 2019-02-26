@@ -34,6 +34,12 @@ var ResTools = (function () {
         var result = sheet.getTexture(name);
         return result;
     };
+    ResTools.playMusic = function (name, times) {
+        console.log('play:', name, times);
+        var res_name = 'resource/sounds/' + name.match(/(.+)_mp3/)[1] + '.mp3';
+        var platform = window.platform;
+        platform.playMusic(res_name, times);
+    };
     return ResTools;
 }());
 __reflect(ResTools.prototype, "ResTools");

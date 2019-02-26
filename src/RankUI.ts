@@ -1,13 +1,13 @@
 class RankUI {
 	private main: Main;
 	private myparent: eui.Component;
-	
-	public constructor(main: Main, myparent:eui.Component) {
+
+	public constructor(main: Main, myparent: eui.Component) {
 		this.main = main;
 		this.myparent = myparent;
 	}
 
-		// 排行榜代码
+	// 排行榜代码
 	private rank_bitmap: egret.Bitmap = null;
 	private rank_isdisplay = false;
 	private rankingListMask: egret.Shape = null;
@@ -122,8 +122,15 @@ class RankUI {
 		this.myparent.addChild(rank_my_panel);
 		this.rank_my_panel = rank_my_panel;
 
+		let h = this.myparent.height;
+		if (window["canvas"]) {
 
-		this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.myparent.width, 1344);
+			let r_w = window["canvas"].width;
+			let r_h = window["canvas"].height;
+
+			h = Math.floor(r_h * this.myparent.width / r_w);
+		}
+		this.rank_bitmap = platform.openDataContext.createDisplayObject(null, this.myparent.width, h);
 
 		this.myparent.addChild(this.rank_bitmap);
 
