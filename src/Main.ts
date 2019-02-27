@@ -5,16 +5,17 @@ class Main extends eui.UILayer {
     public score: number;
     public openid: string;
 
+    public game:GameUI = null;
     public saveScore() {
         var key: string = "bestscore";
-        var value: string = ""+this.highScore;
+        var value: string = "" + this.highScore;
         egret.localStorage.setItem(key, value);
     }
 
-    private getScore() :number{
+    private getScore(): number {
         var key: string = "bestscore";
         let scorestr = egret.localStorage.getItem(key);
-        if(scorestr) return parseInt(scorestr);
+        if (scorestr) return parseInt(scorestr);
 
         return 0;
     }
@@ -30,14 +31,22 @@ class Main extends eui.UILayer {
 
         egret.lifecycle.addLifecycleListener((context) => {
             // custom lifecycle plugin
+            window.addEventListener("focus", context.resume, false);
+            window.addEventListener("blur", context.pause, false);
         })
 
         egret.lifecycle.onPause = () => {
+            console.log('onPause');
             egret.ticker.pause();
         }
 
         egret.lifecycle.onResume = () => {
+            console.log('onResume');
             egret.ticker.resume();
+            if(this.game){
+                this.game.resume();
+                this.game = null;
+            }
         }
 
         //inject the custom material parser
@@ -46,7 +55,7 @@ class Main extends eui.UILayer {
         egret.registerImplementation("eui.IAssetAdapter", assetAdapter);
         egret.registerImplementation("eui.IThemeAdapter", new ThemeAdapter());
 
-        
+
         this.goStart().catch(e => {
             console.log(e);
         })
@@ -62,11 +71,11 @@ class Main extends eui.UILayer {
 
 
         console.log('loginInfo:', loginInfo);
-        
-        const res = await HttpTools.httpPost("https://www.nskqs.com/getOpenId", {code:loginInfo.code, name:'myclear', test:'test_', num:333});
+
+        const res = await HttpTools.httpPost("https://www.nskqs.com/getOpenId", { code: loginInfo.code, name: 'myclear', test: 'test_', num: 333 });
         console.log('res:', res);
 
-        if(res.errcode == 0){
+        if (res.errcode == 0) {
             let data = JSON.parse(res.data);
             this.openid = data.openid;
             egret.localStorage.setItem('myuserinfo', data);
@@ -79,7 +88,7 @@ class Main extends eui.UILayer {
         // console.log('ret:', ret);
 
     }
-d
+    d
     private async loadResource() {
         try {
             //const loadingView = new LoadingUI();
@@ -110,7 +119,7 @@ d
 
     private clearCurScene() {
         if (this.curPage) {
-            if(this.curPage.beforeExit != undefined) this.curPage.beforeExit();
+            if (this.curPage.beforeExit != undefined) this.curPage.beforeExit();
             this.removeChild(this.curPage);
         }
     }
@@ -139,5 +148,5 @@ d
 
         this.addChild(this.curPage);
     }
-   
+
 }

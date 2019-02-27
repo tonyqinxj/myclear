@@ -5,7 +5,7 @@
     "parentPath": ""
   },
   "global": {
-    "globalAutoLayerMarkEnable": true
+    "globalAutoLayerMarkEnable": false
   },
   "168d6908789": {
     "path": "..\\resource\\eui_skins\\OverUI.ts",

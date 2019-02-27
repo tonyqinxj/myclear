@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<e:Skin class="ReLifeUISkin" width="750" height="1624" xmlns:e="http://ns.egret.com/eui" xmlns:w="http://ns.egret.com/wing" >
+	<w:Config id="1692d9da8cb" ></w:Config>
+	<e:Image id="bg" width="750" height="1624" x="0" y="0" source="game_bg_png"/>
+	<e:Group id="overPl" width="750" height="1334" x="0" y="0">
+		<e:Image id="tip" x="222" y="28" source="start_tip_png"/>
+		<e:Image x="275" y="225" source="game_score_png" width="40" height="41"/>
+		<e:Label text="本局得分" x="324" y="228" size="36" textColor="0xFDE305" bold="true"/>
+		<e:Image x="372" y="610" anchorOffsetX="181.5" anchorOffsetY="181.5" source="over_pg_1_png"/>
+		<e:Image id="pgImage" x="372" y="610" source="over_pg_2_png" anchorOffsetX="159.5" anchorOffsetY="159.5"/>
+		<e:Image x="372" y="610" source="over_pg_3_png" anchorOffsetX="129.5" anchorOffsetY="129.5"/>
+		<e:Label id="scoreLable" text="99999" x="238" y="309" width="275" bold="true" size="90" textAlign="center" anchorOffsetY="0" height="87"/>
+		<e:Label id="timeLable" text="9" x="296" y="540" size="130" bold="true" width="150" height="130" textAlign="center" textColor="0xFF845E"/>
+		<e:Image id="relifeImage" x="191" y="837" source="over_relife_png"/>
+		<e:Label id="passLable" text="跳过&gt;" x="339.82" y="1023.94" size="36"/>
+		<e:Group id="ad" width="705" height="181" x="22" y="1093"/>
+	</e:Group>
+</e:Skin>

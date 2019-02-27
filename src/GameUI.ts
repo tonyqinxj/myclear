@@ -104,7 +104,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	private init(): void {
 
 		// 初始化广告控件
-		//this.removeChild(this.miniApp);
+		this.removeChild(this.miniApp);
 
 		this.lastcleartime = 0;
 		this.cleartimes = 0;
@@ -208,8 +208,13 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	private initMiniApp(): any {
 		this.addChild(this.miniApp);
-		egret.Tween.get(this.miniApp, { loop: true })
-			.wait(3000).to({ rotation: 45 }, 150).to({ rotation: -45 }, 150).to({ rotation: 45 }, 150);
+		var timer: egret.Timer = new egret.Timer(1000, 1);
+		timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, (event: egret.TimerEvent) => {
+			egret.Tween.get(this.miniApp, { loop: true })
+				.wait(3000).to({ rotation: 45 }, 150).to({ rotation: -45 }, 150).to({ rotation: 45 }, 150);
+		}, this);
+		timer.start();
+
 		this.miniApp.touchEnabled = true;
 		this.miniApp.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonMiniAppClick, this);
 	}
@@ -579,7 +584,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		rank.onButtonRankClick(e);
 	}
 
-	private music_off = false;
+	//private music_off = false;
 
 	protected onButtonMiniAppClick(e: egret.TouchEvent): void {
 		console.log('onButtonMiniAppClick');
@@ -596,9 +601,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 	protected onButtonMusicClick(e: egret.TouchEvent): void {
 		console.log('onButtonMusicClick');
-		this.music_off = !this.music_off;
+		ResTools.music_off = !ResTools.music_off;
 		let platform: Platform = window.platform;
-		if (this.music_off) {
+		if (ResTools.music_off) {
 			this.music.source = 'game_v_close_png';
 			platform.pauseLoopMusic();
 		} else {
@@ -612,9 +617,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		if (this.change_times >= 3) return;
 
 		if (this.change_times + this.left_change_times == 0) {
-			let platform: any = window.platform;
+			let platform: Platform = window.platform;
 			if (platform && platform.shareAppMessage) {
-				platform.shareAppMessage();
+				platform.shareAppMessage('2019你的好友将会做这件事...', 'resource/assets/share_3.png');
 				this.left_change_times = 3;
 
 				this.changeNum.text = '3/3';
@@ -807,6 +812,12 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 
 	private goOver() {
+		if (this.relifes == 0) {
+			this.relifes++;
+			let relifeui = new ReLifeUI(this.main, this);
+			this.addChild(relifeui);
+			return;
+		}
 
 		let topY = this.topGroup.y - this.topGroup.height;
 
@@ -840,9 +851,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		}
 
 		if (this.left_bomb_times == 0) {
-			let platform: any = window.platform;
+			let platform: Platform = window.platform;
 			if (platform && platform.shareAppMessage) {
-				platform.shareAppMessage();
+				platform.shareAppMessage('俄罗斯方块还能这样玩？99%的人都不知道', 'resource/assets/share_1.png');
 
 				this.left_bomb_times = 1;
 				this.bomb.source = "game_bomb_png";
@@ -972,42 +983,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 
 
-	public onShare(type: string): void {
-		// if (type == "change") {
-		// 	this.onButtonChangeClick(null);
-		// } else if (type == "bomb") {
-		// 	this.onButtonBombClick(null);
-		// }
 
-		console.log('onShare', this.bomb_times, this.left_bomb_times);
-		if (this.bomb_times > 0 || this.left_bomb_times > 0) {
-			return;
-		}
-
-
-		var timer: egret.Timer = new egret.Timer(100, 1);
-
-		//注册事件侦听器
-		timer.addEventListener(egret.TimerEvent.TIMER, () => {
-			console.log("计时");
-		}, this);
-		timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, () => {
-			console.log("计时结束");
-
-			let platform: any = window.platform;
-			if (platform && platform.shareAppMessage) {
-				platform.shareAppMessage();
-
-				this.left_bomb_times = 1;
-				this.bomb.source = "game_bomb_png";
-
-				this.itemGetTip = null;
-			}
-
-		}, this);
-		//开始计时
-		timer.start();
-	}
 
 	// public onWatch(type: string): void {
 	// 	if (type == "change") {
@@ -1093,7 +1069,7 @@ class GameUI extends eui.Component implements eui.UIComponent {
 	}
 
 	protected playMusic(name: string, times: number): void {
-		if (this.music_off) return;
+		if (ResTools.music_off) return;
 		//		ResTools.playMusic(name, times);
 		console.log('play:', name, times);
 		let res_name = 'resource/sounds/' + name.match(/(.+)_mp3/)[1] + '.mp3';
@@ -1149,6 +1125,84 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		// 	name: name,
 		// 	sound: sound
 		// })
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////
+
+	public getScore(): any {
+		return {
+			score: this.gameData.gameScore,
+			highscore: this.main.highScore
+		}
+	}
+	public onShare(type: string): void {
+		// if (type == "change") {
+		// 	this.onButtonChangeClick(null);
+		// } else if (type == "bomb") {
+		// 	this.onButtonBombClick(null);
+		// }
+
+		console.log('onShare', this.bomb_times, this.left_bomb_times);
+		if (this.bomb_times > 0 || this.left_bomb_times > 0) {
+			return;
+		}
+
+
+		var timer: egret.Timer = new egret.Timer(100, 1);
+
+		//注册事件侦听器
+		timer.addEventListener(egret.TimerEvent.TIMER, () => {
+			console.log("计时");
+		}, this);
+		timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, () => {
+			console.log("计时结束");
+
+			let platform: Platform = window.platform;
+			if (platform && platform.shareAppMessage) {
+				platform.shareAppMessage('俄罗斯方块还能这样玩？99%的人都不知道', 'resource/assets/share_1.png');
+
+				this.left_bomb_times = 1;
+				this.bomb.source = "game_bomb_png";
+
+				this.itemGetTip = null;
+			}
+
+		}, this);
+		//开始计时
+		timer.start();
+	}
+
+	public onRelife() {
+		this.main.game = this;
+
+		// let gzs = this.gameData.relife();
+		// for (let i = 0; i < gzs.length; i++) {
+		// 	this.clearGz(i, gzs[i]);
+		// }
+
+		// this.initBlock();
+	}
+
+	public Relife() {
+		let timer = new egret.Timer(1000, 1);
+		timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, (event: egret.TimerEvent) => {
+			let gzs = this.gameData.relife();
+			console.log('Relife', gzs.length);
+
+			for (let i = 0; i < gzs.length; i++) {
+				this.clearGz(i, gzs[i]);
+			}
+
+			this.initBlock();
+		}, this);
+
+		console.log('Relife begin start');
+		timer.start();
+
+	}
+
+	public resume() {
+		this.Relife();
 	}
 
 }

@@ -12,13 +12,13 @@ declare interface Platform {
 
     setDefaultShare():Promise<any>; 
 
-    shareAppMessage(): Promise<any>;
+    
 
     pauseLoopMusic():void;
     resumeLoopMusic():void;
     playMusic(name:string, times:number):void;
     navigateToMiniProgram(appid:string, param:string):Promise<any>;
-
+    shareAppMessage(title:string, url:string):void;
 }
 
 class DebugPlatform implements Platform {
@@ -36,7 +36,7 @@ class DebugPlatform implements Platform {
 
     }
 
-    async shareAppMessage(){
+    shareAppMessage(title:string, url:string){
         
     }
 

@@ -519,6 +519,40 @@ namespace myClear {
                 cantnum: cantnum
             }
         }
+
+        public relife(): any {
+            let gzs = [];
+
+            for (let c = 0; c < 8; c++) {
+                if (this.gameGrid[4][c].num) {
+                    gzs.push(this.gameGrid[4][c].gz);
+                    this.gameGrid[4][c].gz = null;
+                    this.gameGrid[4][c].num = 0;
+                }
+            }
+
+
+            for (let r = 0; r < 8; r++) {
+                if (this.gameGrid[r][4].num) {
+                    gzs.push(this.gameGrid[r][4].gz);
+                    this.gameGrid[r][4].gz = null;
+                    this.gameGrid[r][4].num = 0;
+                }
+            }
+
+            let others = [[3, 3], [3, 5], [5, 3], [5, 5]];
+            others.forEach(o => {
+                if (this.gameGrid[o[0]][o[1]].num) {
+                    gzs.push(this.gameGrid[o[0]][o[1]].gz);
+                    this.gameGrid[o[0]][o[1]].gz = null;
+                    this.gameGrid[o[0]][o[1]].num = 0;
+                }
+            })
+
+
+            return gzs;
+
+        }
     }
 }
 

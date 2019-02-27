@@ -5,11 +5,11 @@
 			"name": "start"
 		},
 		{
-			"keys": "game_v_open_png,game_v_close_png,game_tuijian_open_png,game_tuijian_close_png,game_score_png,game_replay_png,game_high_score_png,game_gz_mei_png,game_gz_hong_png,game_gz_hei_png,game_gz_fang_png,game_friend_rank_png,game_change_png,game_bomb_png,game_bg_png,border_png,game_get_png,game_hammer_png,game_game_png,game_panel_png,game_nobomb_png,game_panel_1_png,over_share_png,over_replay_png,close_png,over_friend_rank_png,item_bomb_png,item_change_png,item_share_png,item_watch_png,over_panel_png,click_tip_png",
+			"keys": "game_v_open_png,game_v_close_png,game_tuijian_open_png,game_tuijian_close_png,game_score_png,game_replay_png,game_high_score_png,game_gz_mei_png,game_gz_hong_png,game_gz_hei_png,game_gz_fang_png,game_friend_rank_png,game_change_png,game_bomb_png,game_bg_png,border_png,game_get_png,game_hammer_png,game_game_png,game_panel_png,game_nobomb_png,game_panel_1_png,over_share_png,over_replay_png,close_png,over_friend_rank_png,item_bomb_png,item_change_png,item_share_png,item_watch_png,over_panel_png,click_tip_png,over_pg_3_png,over_pg_2_png,over_pg_1_png,over_relife_png,app_icon_1_png",
 			"name": "game"
 		},
 		{
-			"keys": "8_mp3,item_change_png,item_bomb_png,item_share_png,item_watch_png,click_tip_png",
+			"keys": "8_mp3,item_change_png,item_bomb_png,item_share_png,item_watch_png,click_tip_png,share_1_png,share_2_png,share_3_png,app_icon_1_png,over_relife_png,over_pg_1_png,over_pg_2_png,over_pg_3_png",
 			"name": "preload"
 		}
 	],
@@ -418,6 +418,46 @@
 			"url": "assets/game/click_tip.png",
 			"type": "image",
 			"name": "click_tip_png"
+		},
+		{
+			"url": "assets/share_1.png",
+			"type": "image",
+			"name": "share_1_png"
+		},
+		{
+			"url": "assets/share_2.png",
+			"type": "image",
+			"name": "share_2_png"
+		},
+		{
+			"url": "assets/share_3.png",
+			"type": "image",
+			"name": "share_3_png"
+		},
+		{
+			"url": "assets/game/app_icon_1.png",
+			"type": "image",
+			"name": "app_icon_1_png"
+		},
+		{
+			"url": "assets/game/over_relife.png",
+			"type": "image",
+			"name": "over_relife_png"
+		},
+		{
+			"url": "assets/game/over_pg_1.png",
+			"type": "image",
+			"name": "over_pg_1_png"
+		},
+		{
+			"url": "assets/game/over_pg_2.png",
+			"type": "image",
+			"name": "over_pg_2_png"
+		},
+		{
+			"url": "assets/game/over_pg_3.png",
+			"type": "image",
+			"name": "over_pg_3_png"
 		}
 	]
 }

@@ -73,6 +73,7 @@ class OverUI extends eui.Component implements eui.UIComponent {
 
 		this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onStartClick, this);
 		this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onRankClick, this);
+		this.share.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onShareClick, this);
 	}
 
 	private onStartClick(e: egret.TouchEvent): void {
@@ -83,7 +84,7 @@ class OverUI extends eui.Component implements eui.UIComponent {
 	private onShareClick(e: egret.TouchEvent): void {
 		console.log('onShareClick');
 		let platform: Platform = window.platform;
-		platform.shareAppMessage();
+		platform.shareAppMessage('@我，来跟我挑战一下，我不信你能赢！', 'resource/assets/share_2.png');
 
 	}
 
@@ -104,6 +105,12 @@ class OverUI extends eui.Component implements eui.UIComponent {
 			});
 
 		}
+	}
+
+	private async goApp() {
+		let platform: Platform = window.platform;
+		let ret = await platform.navigateToMiniProgram('wx845c44523d1d7ef4', '');
+		console.log(ret);
 	}
 
 }

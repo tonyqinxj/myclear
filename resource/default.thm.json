@@ -16,7 +16,8 @@
 		"StartUI": "resource/eui_skins/StartUI.exml",
 		"GameUI": "resource/eui_skins/GameUI.exml",
 		"OverUI": "resource/eui_skins/OverUI.exml",
-		"RankUI": "resource/eui_skins/RankUI.exml"
+		"RankUI": "resource/eui_skins/RankUI.exml",
+		"ReLifeUI": "resource/eui_skins/ReLifeUI.exml"
 	},
 	"autoGenerateExmlsList": true,
 	"exmls": [
@@ -30,6 +31,7 @@
 		"resource/eui_skins/PanelSkin.exml",
 		"resource/eui_skins/ProgressBarSkin.exml",
 		"resource/eui_skins/RadioButtonSkin.exml",
+		"resource/eui_skins/ReLifeUI.exml",
 		"resource/eui_skins/ScrollerSkin.exml",
 		"resource/eui_skins/StartUI.exml",
 		"resource/eui_skins/TextInputSkin.exml",
