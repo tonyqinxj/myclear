@@ -810,14 +810,16 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		return overdata;
 	}
 
-
+	private relifeui:ReLifeUI = null;
 	private goOver() {
 		if (this.relifes == 0) {
 			this.relifes++;
-			let relifeui = new ReLifeUI(this.main, this);
-			this.addChild(relifeui);
+			this.relifeui = new ReLifeUI(this.main, this);
+			this.addChild(this.relifeui);
 			return;
 		}
+
+		if(this.relifeui != null) return;
 
 		let topY = this.topGroup.y - this.topGroup.height;
 
@@ -1172,18 +1174,28 @@ class GameUI extends eui.Component implements eui.UIComponent {
 		timer.start();
 	}
 
-	public onRelife() {
-		this.main.game = this;
 
-		// let gzs = this.gameData.relife();
-		// for (let i = 0; i < gzs.length; i++) {
-		// 	this.clearGz(i, gzs[i]);
-		// }
-
-		// this.initBlock();
+	// 响应复活界面的跳过点击
+	public onSkipEnd(){
+		this.removeChild(this.relifeui);
+		this.relifeui = null;
+		this.main.setPage('over');
 	}
 
+	//   响应复活界面的复活点击
+	public onRelife() {
+		this.main.game = this; // 告訴main，我們需要resume的通知
+		this.removeChild(this.relifeui);
+		this.relifeui = null;
+
+
+		let platform: Platform = window.platform;
+		platform.shareAppMessage('@我，来跟我挑战一下，我不信你能赢！', 'resource/assets/share_2.png');
+	}
+
+	// 实际的复活，点击分享之后，进场被pause，当resume的时候判断是否需要复活，如果需要就用这个接口复活
 	public Relife() {
+		
 		let timer = new egret.Timer(1000, 1);
 		timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, (event: egret.TimerEvent) => {
 			let gzs = this.gameData.relife();
@@ -1198,9 +1210,9 @@ class GameUI extends eui.Component implements eui.UIComponent {
 
 		console.log('Relife begin start');
 		timer.start();
-
 	}
 
+	// 响应main的resume事件，目前只有复活一个环节需要
 	public resume() {
 		this.Relife();
 	}

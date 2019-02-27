@@ -30,9 +30,13 @@ class ItemGetTip {
 		this.pl.y = 268;
 		this.pl.width = 600;
 		this.pl.height = 589;
+		// this.pl.graphics.beginFill(0x000000, 1);
+		// this.pl.graphics.drawRect(0,0, 600, 589);
+		// this.pl.graphics.endFill();
 		this.myparent.addChild(this.pl);
 
 		let bg = ResTools.createBitmapByName('over_panel_png');
+		bg.scale9Grid = new egret.Rectangle(20,20,20,20);
 		bg.x = 0;
 		bg.y = 0;
 		bg.width = this.pl.width;

@@ -91,17 +91,14 @@ class ReLifeUI extends eui.Component implements eui.UIComponent {
 	protected onButtonRelifeClick(e: egret.TouchEvent): void {
 		console.log('onButtonRelifeClick');
 		this.timer.stop();
-		this.game.removeChild(this);
 		this.game.onRelife();
 
-		let platform: Platform = window.platform;
-		platform.shareAppMessage('@我，来跟我挑战一下，我不信你能赢！', 'resource/assets/share_2.png');
 	}
 
 	protected onButtonPassClick(e: egret.TouchEvent): void {
 		console.log('onButtonPassClick');
 		this.timer.stop();
-		this.game.removeChild(this);
-		this.main.setPage('over');
+		this.game.onSkipEnd();
+		
 	}
 }
