@@ -9,6 +9,7 @@ class OverUI extends eui.Component implements eui.UIComponent {
 	private rank: eui.Button;
 
 	private tip: eui.Image;
+	private miniApp: eui.Image;
 
 	private rankPl: eui.Group;
 
@@ -71,9 +72,32 @@ class OverUI extends eui.Component implements eui.UIComponent {
 
 		}
 
+
+		var timer: egret.Timer = new egret.Timer(1000, 1);
+		timer.addEventListener(egret.TimerEvent.TIMER_COMPLETE, (event: egret.TimerEvent) => {
+			egret.Tween.get(this.miniApp, { loop: true })
+				.wait(3000).to({ rotation: 45 }, 150).to({ rotation: -45 }, 150).to({ rotation: 45 }, 150);
+		}, this);
+		timer.start();
+
 		this.replay.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onStartClick, this);
 		this.rank.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onRankClick, this);
 		this.share.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onShareClick, this);
+		this.miniApp.addEventListener(egret.TouchEvent.TOUCH_BEGIN, this.onButtonMiniAppClick, this);
+
+	}
+
+	protected onButtonMiniAppClick(e: egret.TouchEvent): void {
+		console.log('onButtonMiniAppClick');
+		this.goApp().catch(e => {
+			console.log(e);
+		});
+	}
+
+	private async goApp() {
+		let platform: Platform = window.platform;
+		let ret = await platform.navigateToMiniProgram('wx845c44523d1d7ef4', '');
+		console.log(ret);
 	}
 
 	private onStartClick(e: egret.TouchEvent): void {
@@ -105,12 +129,6 @@ class OverUI extends eui.Component implements eui.UIComponent {
 			});
 
 		}
-	}
-
-	private async goApp() {
-		let platform: Platform = window.platform;
-		let ret = await platform.navigateToMiniProgram('wx845c44523d1d7ef4', '');
-		console.log(ret);
 	}
 
 }

@@ -4,7 +4,7 @@
 	<w:Config id="168d6908789"></w:Config>
 	<e:Image id="bg" width="750" x="0" height="1624" y="0" source="game_bg_png" />
 	<e:Group width="705" height="683" horizontalCenter="0" top="137">
-		<e:Image id="scorePl" top="0" bottom="0" x="0" source="game_panel_png" scale9Grid="10,10,10,10" />
+		<e:Image id="scorePl" top="0" bottom="0" x="0" source="game_panel_png" scale9Grid="20,20,20,20"  width="711" height="683"/>
 		<e:Image id="rankImg" source="game_panel_1_png" top="296" bottom="213" left="46" right="46" scale9Grid="10,10,10,10" />
 		<e:Button id="replay" label="" width="285" height="96" left="46" bottom="23">
 			<e:skinName>
@@ -39,7 +39,8 @@
 	</e:Group>
 	<e:Label text="猜你喜欢" x="317" y="834" textColor="0xFFFFFF" alpha="0.5" />
 	<e:Group id="mylove" width="705" height="202" x="22" y="874">
-		<e:Image left="0" top="0" right="0" bottom="0" source="game_panel_png" />
+		<e:Image left="0" top="0" right="0" bottom="0" source="game_panel_png"  scale9Grid="20,20,20,20" width="705" height="202"/>
 	</e:Group>
 	<e:Image id="tip" x="222" y="28" source="start_tip_png" />
+	<e:Image id="miniApp" x="639.5" y="241.5" source="app_icon_1_png" anchorOffsetX="42.5" anchorOffsetY="45.5"/>
 </e:Skin>

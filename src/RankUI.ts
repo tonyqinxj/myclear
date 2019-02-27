@@ -86,8 +86,7 @@ class RankUI {
 		let rank_top_panel = ResTools.createBitmapByName('game_panel_png');
 		//let rank_top_panel:egret.Bitmap = new egret.Bitmap();
 		//rank_top_panel.texture = RES.getRes('game_panel_png');
-		let rect: egret.Rectangle = new egret.Rectangle(30, 1, 1, 30);
-		rank_top_panel.scale9Grid = rect;
+		rank_top_panel.scale9Grid = new egret.Rectangle(20, 20, 20, 20);
 		rank_top_panel.x = 70;
 		rank_top_panel.y = 226;
 		rank_top_panel.width = 611;
@@ -120,6 +119,7 @@ class RankUI {
 
 		// 绘制自己的底板
 		let rank_my_panel = ResTools.createBitmapByName('game_panel_png');
+		rank_my_panel.scale9Grid = new egret.Rectangle(20, 20, 20, 20);
 		rank_my_panel.x = 70;
 		rank_my_panel.y = 901;
 		rank_my_panel.width = 611;
